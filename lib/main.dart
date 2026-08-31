@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'doctor/doctor_dashboard.dart';
+import 'doctor/doctor_main_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +15,11 @@ class MyApp extends StatelessWidget {
 
       title: 'Doctor Appointment App',
 
-      home: const DoctorDashboard(),
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
+
+      home: const DoctorMainScreen(),
     );
   }
 }
