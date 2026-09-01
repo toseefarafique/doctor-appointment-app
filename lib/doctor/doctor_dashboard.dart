@@ -5,7 +5,7 @@ import 'doctor_profile.dart';
 import 'schedule.dart';
 import 'time_slots.dart';
 import 'patient_details.dart';
-import 'appointment_details.dart';
+// import 'appointment_details.dart';
 
 
 class DoctorDashboard extends StatelessWidget {
