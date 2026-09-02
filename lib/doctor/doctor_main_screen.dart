@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'doctor_dashboard.dart';
 import 'doctor_profile.dart';
 import 'appointment.dart';
-
+import '../admin/admin_dashboard.dart';
 
 
 class DoctorMainScreen extends StatefulWidget {
@@ -71,10 +71,19 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
                 showUnselectedLabels: true,
 
                 onTap: (index) {
+                if (index == 4) {
+                 Navigator.push(
+                 context,
+                  MaterialPageRoute(
+                 builder: (_) => const AdminDashboard(),
+                   ),
+                 );
+                 } else {
                   setState(() {
-                    selectedIndex = index;
-                  });
-                },
+                   selectedIndex = index;
+                   });
+                  }
+                 },
 
                 items: const [
                   BottomNavigationBarItem(
@@ -95,6 +104,11 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
                   BottomNavigationBarItem(
                     icon: Icon(Icons.person),
                     label: "Profile",
+                  ),
+
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.admin_panel_settings),
+                    label: "Admin",
                   ),
                 ],
               ),
