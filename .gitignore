@@ -45,4 +45,3 @@ app.*.map.json
 /android/app/release
 
 lib/Patient/api_config.dart
-lib/api_config.dart
