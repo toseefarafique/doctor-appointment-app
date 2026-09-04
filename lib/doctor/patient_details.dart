@@ -98,7 +98,7 @@ class PatientDetails extends StatelessWidget {
                           const SizedBox(height: 10),
 
                           const Text(
-                            "Ali Raza",
+                            "Ali Ahmed",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

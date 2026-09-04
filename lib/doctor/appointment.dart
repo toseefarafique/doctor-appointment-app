@@ -18,7 +18,7 @@ class _DoctorAppointmentsState extends State<DoctorAppointments> {
 
   final List<Map<String, dynamic>> appointments = [
     {
-      "name": "Ali Raza",
+      "name": "Ali Ahmed",
       "age": "25 Years",
       "gender": "Male",
       "date": "12 Aug 2025",
@@ -27,27 +27,27 @@ class _DoctorAppointmentsState extends State<DoctorAppointments> {
       "status": "Confirmed",
     },
     {
-      "name": "Fatima Noor",
+      "name": "Asma Noor",
       "age": "30 Years",
       "gender": "Female",
       "date": "12 Aug 2025",
-      "time": "11:30 AM",
+      "time": "11:00 AM",
       "type": "Follow-up",
       "status": "Upcoming",
     },
     {
-      "name": "Ahmed Farooq",
+      "name": "Hina Fatima",
       "age": "40 Years",
-      "gender": "Male",
+      "gender": "Female",
       "date": "12 Aug 2025",
       "time": "02:00 PM",
       "type": "Consultation",
       "status": "Upcoming",
     },
     {
-      "name": "Ayesha Malik",
+      "name": "Usman Tariq",
       "age": "28 Years",
-      "gender": "Female",
+      "gender": "Male",
       "date": "11 Aug 2025",
       "time": "04:00 PM",
       "type": "Consultation",

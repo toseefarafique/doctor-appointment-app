@@ -94,7 +94,6 @@ class AdminDashboard extends StatelessWidget {
                     children: [
                       // ==================================================
                       // PATIENTS COUNT
-                      // ICON COLOR = GREEN
                       // ==================================================
 
                       StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -135,7 +134,6 @@ class AdminDashboard extends StatelessWidget {
 
                       // ==================================================
                       // DOCTORS COUNT
-                      // ICON COLOR = ORANGE
                       // ==================================================
                       StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                         stream: FirebaseFirestore.instance
@@ -175,7 +173,6 @@ class AdminDashboard extends StatelessWidget {
 
                       // ==================================================
                       // APPOINTMENTS COUNT
-                      // ICON COLOR = PURPLE
                       // ==================================================
                       StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                         stream: FirebaseFirestore.instance
@@ -215,7 +212,6 @@ class AdminDashboard extends StatelessWidget {
 
                       // ==================================================
                       // SPECIALIZATIONS COUNT
-                      // ICON COLOR = RED
                       // ==================================================
                       StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                         stream: FirebaseFirestore.instance

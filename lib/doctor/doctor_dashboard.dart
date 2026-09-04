@@ -42,7 +42,7 @@ class DoctorDashboard extends StatelessWidget {
               // APP BAR
               // ==================================================
               appBar: AppBar(
-                backgroundColor: primaryBlue,
+                backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white,
                 elevation: 0,
 
@@ -79,7 +79,7 @@ class DoctorDashboard extends StatelessWidget {
                     // ------------------------------------------------
                     DrawerHeader(
                       decoration: const BoxDecoration(
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       child: StreamBuilder<
@@ -107,7 +107,7 @@ class DoctorDashboard extends StatelessWidget {
                                   child: Icon(
                                     Icons.person,
                                     size: 38,
-                                    color: primaryBlue,
+                                    color: Colors.blueAccent,
                                   ),
                                 ),
 
@@ -137,7 +137,7 @@ class DoctorDashboard extends StatelessWidget {
                                   child: Icon(
                                     Icons.person,
                                     size: 38,
-                                    color: primaryBlue,
+                                    color: Colors.blueAccent,
                                   ),
                                 ),
 
@@ -175,7 +175,7 @@ class DoctorDashboard extends StatelessWidget {
                                 child: Icon(
                                   Icons.person,
                                   size: 38,
-                                  color: primaryBlue,
+                                  color: Colors.blueAccent,
                                 ),
                               ),
 
@@ -208,7 +208,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.dashboard,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Dashboard"),
@@ -224,7 +224,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.calendar_today,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Appointments"),
@@ -248,7 +248,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.person,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Profile"),
@@ -272,7 +272,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.schedule,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Schedule"),
@@ -296,7 +296,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.person_search,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Patient Detail"),
@@ -320,7 +320,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.access_time,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Time Slots"),
@@ -346,7 +346,7 @@ class DoctorDashboard extends StatelessWidget {
                     ListTile(
                       leading: const Icon(
                         Icons.logout,
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
 
                       title: const Text("Logout"),
@@ -372,7 +372,7 @@ class DoctorDashboard extends StatelessWidget {
                       ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        color: primaryBlue,
+                        color: Colors.blueAccent,
                       ),
                     );
                   }
@@ -450,7 +450,7 @@ class DoctorDashboard extends StatelessWidget {
                                 color: Colors.blue.shade50,
 
                                 border: Border.all(
-                                  color: primaryBlue,
+                                  color: Colors.blueAccent,
                                   width: 2,
                                 ),
                               ),
@@ -471,14 +471,14 @@ class DoctorDashboard extends StatelessWidget {
                                     return const Icon(
                                       Icons.person,
                                       size: 70,
-                                      color: primaryBlue,
+                                      color: Colors.blueAccent,
                                     );
                                   },
                                 )
                                     : const Icon(
                                   Icons.person,
                                   size: 70,
-                                  color: primaryBlue,
+                                  color: Colors.blueAccent,
                                 ),
                               ),
                             ),
@@ -515,7 +515,7 @@ class DoctorDashboard extends StatelessWidget {
                                   Text(
                                     specialization,
                                     style: const TextStyle(
-                                      color: primaryBlue,
+                                      color: Colors.blueAccent,
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -605,30 +605,30 @@ class DoctorDashboard extends StatelessWidget {
                         // APPOINTMENT 1
                         // ==================================================
                         scheduleCard(
-                          time: "10:00 AM",
-                          patient: "Ali Raza",
+                          patient: "Ali Ahmed",
                           type: "Consultation",
                           status: "Confirmed",
+                          time: "10:00 AM",
                         ),
 
                         // ==================================================
                         // APPOINTMENT 2
                         // ==================================================
                         scheduleCard(
-                          time: "10:30 AM",
-                          patient: "Fatima Noor",
+                          patient: "Asma Noor",
                           type: "Follow-up",
                           status: "Upcoming",
+                          time: "11:00 AM",
                         ),
 
                         // ==================================================
                         // APPOINTMENT 3
                         // ==================================================
                         scheduleCard(
-                          time: "02:00 PM",
-                          patient: "Ahmed Farooq",
+                          patient: "Hina Fatima",
                           type: "Consultation",
                           status: "Upcoming",
+                          time: "02:00 PM",
                         ),
                       ],
                     ),
@@ -669,7 +669,7 @@ class DoctorDashboard extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: primaryBlue,
+              color: Colors.blueAccent,
               size: 30,
             ),
 
@@ -778,7 +778,7 @@ class DoctorDashboard extends StatelessWidget {
                 status,
 
                 style: const TextStyle(
-                  color: primaryBlue,
+                  color: Colors.blueAccent,
                   fontWeight: FontWeight.bold,
                 ),
               ),

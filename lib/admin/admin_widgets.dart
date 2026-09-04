@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../Patient/login_screen.dart';
 
 import 'manage_patients.dart';
 import 'manage_doctors.dart';
 import 'manage_appointments.dart';
 import 'specializations.dart';
 import 'doctor_approval.dart';
-import '../doctor/doctor_main_screen.dart';
 
 const Color appBlue = Colors.blueAccent;
 
@@ -41,7 +43,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.blueAccent,
       foregroundColor: Colors.white,
 
-      // When showMenu is true, we provide our own hamburger button.
       automaticallyImplyLeading: !showMenu,
 
       leading: showMenu
@@ -96,6 +97,20 @@ class AdminDrawer extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(builder: (context) => page));
   }
 
+  // ============================== LOGOUT ==============================
+
+  Future<void> logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+
+    if (!context.mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const login_screen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -111,7 +126,9 @@ class AdminDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
                 Icon(Icons.admin_panel_settings, color: Colors.white, size: 50),
+
                 SizedBox(height: 10),
+
                 Text(
                   "Admin Panel",
                   style: TextStyle(
@@ -126,7 +143,7 @@ class AdminDrawer extends StatelessWidget {
 
           // ================= DASHBOARD =================
           ListTile(
-            leading: const Icon(Icons.dashboard, color: appBlue),
+            leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
             title: const Text(
               "Dashboard",
               style: TextStyle(color: Colors.black87),
@@ -138,7 +155,7 @@ class AdminDrawer extends StatelessWidget {
 
           // ================= MANAGE PATIENTS =================
           ListTile(
-            leading: const Icon(Icons.people, color: Colors.green),
+            leading: const Icon(Icons.people, color: Colors.blueAccent),
             title: const Text(
               "Manage Patients",
               style: TextStyle(color: Colors.black87),
@@ -150,7 +167,10 @@ class AdminDrawer extends StatelessWidget {
 
           // ================= MANAGE DOCTORS =================
           ListTile(
-            leading: const Icon(Icons.medical_services, color: Colors.orange),
+            leading: const Icon(
+              Icons.medical_services,
+              color: Colors.blueAccent,
+            ),
             title: const Text(
               "Manage Doctors",
               style: TextStyle(color: Colors.black87),
@@ -162,7 +182,7 @@ class AdminDrawer extends StatelessWidget {
 
           // ================= MANAGE APPOINTMENTS =================
           ListTile(
-            leading: const Icon(Icons.calendar_month, color: Colors.purple),
+            leading: const Icon(Icons.calendar_month, color: Colors.blueAccent),
             title: const Text(
               "Manage Appointments",
               style: TextStyle(color: Colors.black87),
@@ -174,7 +194,7 @@ class AdminDrawer extends StatelessWidget {
 
           // ================= SPECIALIZATIONS =================
           ListTile(
-            leading: const Icon(Icons.local_hospital, color: Colors.red),
+            leading: const Icon(Icons.local_hospital, color: Colors.blueAccent),
             title: const Text(
               "Specializations",
               style: TextStyle(color: Colors.black87),
@@ -186,7 +206,7 @@ class AdminDrawer extends StatelessWidget {
 
           // ================= DOCTOR APPROVAL =================
           ListTile(
-            leading: const Icon(Icons.verified_user, color: Colors.teal),
+            leading: const Icon(Icons.verified_user, color: Colors.blueAccent),
             title: const Text(
               "Doctor Approval",
               style: TextStyle(color: Colors.black87),
@@ -198,15 +218,15 @@ class AdminDrawer extends StatelessWidget {
 
           const Divider(),
 
-          // ================= DOCTOR MODULE =================
+          // ================= LOGOUT =================
           ListTile(
-            leading: const Icon(Icons.person, color: Colors.indigo),
+            leading: const Icon(Icons.logout, color: Colors.blueAccent),
             title: const Text(
-              "Doctor Module",
+              "Logout",
               style: TextStyle(color: Colors.black87),
             ),
-            onTap: () {
-              openPage(context, const DoctorMainScreen());
+            onTap: () async {
+              await logout(context);
             },
           ),
         ],
@@ -262,7 +282,6 @@ class StatCard extends StatelessWidget {
             const SizedBox(height: 5),
 
             // ================= NUMBER =================
-            // Always BLACK
             Text(
               value,
               style: const TextStyle(
@@ -317,7 +336,7 @@ class StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.12),
+        color: statusColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

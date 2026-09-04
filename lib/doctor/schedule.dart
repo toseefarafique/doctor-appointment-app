@@ -14,19 +14,19 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
   final List<Map<String, String>> appointments = [
     {
-      "patient": "Ali Raza",
+      "patient": "Ali Ahmed",
       "time": "10:00 AM",
       "type": "Consultation",
       "status": "Confirmed",
     },
     {
-      "patient": "Fatima Noor",
-      "time": "10:30 AM",
+      "patient": "Asma  Noor",
+      "time": "11:00 AM",
       "type": "Follow-up",
       "status": "Upcoming",
     },
     {
-      "patient": "Ahmed Farooq",
+      "patient": "Hina Fatima",
       "time": "02:00 PM",
       "type": "Consultation",
       "status": "Upcoming",

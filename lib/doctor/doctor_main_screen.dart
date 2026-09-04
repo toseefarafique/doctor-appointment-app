@@ -61,7 +61,7 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
                 type: BottomNavigationBarType.fixed,
 
                 selectedItemColor:
-                    const Color(0xFF1565C0),
+                Colors.blueAccent,
 
                 unselectedItemColor: Colors.grey,
 
@@ -106,10 +106,7 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
                     label: "Profile",
                   ),
 
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.admin_panel_settings),
-                    label: "Admin",
-                  ),
+
                 ],
               ),
             ),
