@@ -327,17 +327,23 @@ class AdminDashboard extends StatelessWidget {
                         children: appointments.map((document) {
                           final appointment = document.data();
 
+                          // Patient name
                           final patient =
+                              appointment['patientName']?.toString() ??
                               appointment['patient']?.toString() ??
                               'Unknown Patient';
 
+                          // Doctor name
                           final doctor =
                               appointment['doctor']?.toString() ??
+                              appointment['doctorName']?.toString() ??
                               'Unknown Doctor';
 
+                          // Appointment time
                           final time =
                               appointment['time']?.toString() ?? 'No time';
 
+                          // Appointment status
                           final status =
                               appointment['status']?.toString() ?? 'Pending';
 

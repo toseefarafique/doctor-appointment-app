@@ -78,19 +78,27 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
 
-    // Wait 2 seconds, then open Login Screen
-    Timer(const Duration(seconds: 2), () {
-      if (!mounted) return;
+    _timer = Timer(const Duration(seconds: 2), _openLoginScreen);
+  }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const login_screen()),
-      );
-    });
+  void _openLoginScreen() {
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const login_screen()),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -102,7 +110,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Medi-Book Logo/Icon
+            // ------------------------------------------------
+            // MEDI-BOOK LOGO
+            // ------------------------------------------------
+
             Container(
               width: 120,
               height: 120,
@@ -129,7 +140,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 25),
 
-            // App Name
+            // ------------------------------------------------
+            // APP NAME
+            // ------------------------------------------------
             const Text(
               'Medi-Book',
               style: TextStyle(
@@ -142,7 +155,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 8),
 
-            // Subtitle
+            // ------------------------------------------------
+            // SUBTITLE
+            // ------------------------------------------------
             Text(
               'Doctor Appointment App',
               style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
@@ -150,7 +165,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 35),
 
-            // Loading indicator
+            // ------------------------------------------------
+            // LOADING
+            // ------------------------------------------------
             const SizedBox(
               width: 30,
               height: 30,

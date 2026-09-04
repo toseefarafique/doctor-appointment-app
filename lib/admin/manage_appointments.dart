@@ -6,43 +6,30 @@ class ManageAppointments extends StatefulWidget {
   const ManageAppointments({super.key});
 
   @override
-  State<ManageAppointments> createState() =>
-      _ManageAppointmentsState();
+  State<ManageAppointments> createState() => _ManageAppointmentsState();
 }
 
-class _ManageAppointmentsState
-    extends State<ManageAppointments> {
+class _ManageAppointmentsState extends State<ManageAppointments> {
   String search = "";
 
   // SnackBar key for mobile frame
-  final GlobalKey<ScaffoldMessengerState>
-  scaffoldMessengerKey =
-  GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
 
   // =========================
   // SHOW SNACKBAR
   // =========================
 
-  void showMessage(
-      String message, {
-        bool isError = false,
-      }) {
-    scaffoldMessengerKey.currentState
-        ?.hideCurrentSnackBar();
+  void showMessage(String message, {bool isError = false}) {
+    scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
 
     scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-        ),
-        backgroundColor:
-        isError ? Colors.red : Colors.green,
+        content: Text(message, textAlign: TextAlign.center),
+        backgroundColor: isError ? Colors.red : Colors.green,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -58,15 +45,10 @@ class _ManageAppointmentsState
       builder: (_) {
         return AddAppointmentDialog(
           onSuccess: () {
-            showMessage(
-              "Appointment added successfully",
-            );
+            showMessage("Appointment added successfully");
           },
           onError: (message) {
-            showMessage(
-              message,
-              isError: true,
-            );
+            showMessage(message, isError: true);
           },
         );
       },
@@ -78,12 +60,12 @@ class _ManageAppointmentsState
   // =========================
 
   void editAppointment(
-      String documentId,
-      String currentPatient,
-      String currentDoctor,
-      String currentTime,
-      String currentStatus,
-      ) {
+    String documentId,
+    String currentPatient,
+    String currentDoctor,
+    String currentTime,
+    String currentStatus,
+  ) {
     showDialog(
       context: context,
       builder: (_) {
@@ -94,15 +76,10 @@ class _ManageAppointmentsState
           currentTime: currentTime,
           currentStatus: currentStatus,
           onSuccess: () {
-            showMessage(
-              "Appointment updated successfully",
-            );
+            showMessage("Appointment updated successfully");
           },
           onError: (message) {
-            showMessage(
-              message,
-              isError: true,
-            );
+            showMessage(message, isError: true);
           },
         );
       },
@@ -113,9 +90,7 @@ class _ManageAppointmentsState
   // DELETE APPOINTMENT
   // =========================
 
-  Future<void> deleteAppointment(
-      String documentId,
-      ) async {
+  Future<void> deleteAppointment(String documentId) async {
     try {
       await FirebaseFirestore.instance
           .collection("appointments")
@@ -123,16 +98,11 @@ class _ManageAppointmentsState
           .delete();
 
       if (mounted) {
-        showMessage(
-          "Appointment deleted successfully",
-        );
+        showMessage("Appointment deleted successfully");
       }
     } catch (e) {
       if (mounted) {
-        showMessage(
-          "Error deleting appointment",
-          isError: true,
-        );
+        showMessage("Error deleting appointment", isError: true);
       }
     }
   }
@@ -141,19 +111,14 @@ class _ManageAppointmentsState
   // DELETE CONFIRMATION
   // =========================
 
-  void confirmDelete(
-      String documentId,
-      String patientName,
-      ) {
+  void confirmDelete(String documentId, String patientName) {
     showDialog(
       context: context,
       builder: (_) {
         return AlertDialog(
           title: const Text(
             "Delete Appointment",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           content: Text(
             "Are you sure you want to delete the appointment for $patientName?",
@@ -173,9 +138,7 @@ class _ManageAppointmentsState
               onPressed: () async {
                 Navigator.pop(context);
 
-                await deleteAppointment(
-                  documentId,
-                );
+                await deleteAppointment(documentId);
               },
               child: const Text("Delete"),
             ),
@@ -189,29 +152,19 @@ class _ManageAppointmentsState
   // CHANGE STATUS
   // =========================
 
-  Future<void> changeStatus(
-      String documentId,
-      String status,
-      ) async {
+  Future<void> changeStatus(String documentId, String status) async {
     try {
       await FirebaseFirestore.instance
           .collection("appointments")
           .doc(documentId)
-          .update({
-        "status": status,
-      });
+          .update({"status": status});
 
       if (mounted) {
-        showMessage(
-          "Appointment status changed to $status",
-        );
+        showMessage("Appointment status changed to $status");
       }
     } catch (e) {
       if (mounted) {
-        showMessage(
-          "Error changing status",
-          isError: true,
-        );
+        showMessage("Error changing status", isError: true);
       }
     }
   }
@@ -230,7 +183,6 @@ class _ManageAppointmentsState
           width: 600,
           height: 1100,
           clipBehavior: Clip.antiAlias,
-
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -242,16 +194,17 @@ class _ManageAppointmentsState
             child: Scaffold(
               backgroundColor: Colors.white,
 
-              appBar: const MyAppBar(
-                title: "Manage Appointments",
-              ),
+              appBar: const MyAppBar(title: "Manage Appointments"),
 
               body: Padding(
                 padding: const EdgeInsets.all(20),
 
                 child: Column(
                   children: [
+                    // =========================
                     // SEARCH
+                    // =========================
+
                     SearchBox(
                       hint: "Search appointments...",
                       onChanged: (value) {
@@ -263,7 +216,9 @@ class _ManageAppointmentsState
 
                     const SizedBox(height: 15),
 
+                    // =========================
                     // APPOINTMENT LIST
+                    // =========================
                     Expanded(
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
@@ -271,263 +226,242 @@ class _ManageAppointmentsState
                             .snapshots(),
 
                         builder: (context, snapshot) {
+                          // =========================
+                          // LOADING
+                          // =========================
+
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                              child:
-                              CircularProgressIndicator(
-                                color:
-                                Colors.blueAccent,
+                              child: CircularProgressIndicator(
+                                color: Colors.blueAccent,
                               ),
                             );
                           }
 
+                          // =========================
+                          // ERROR
+                          // =========================
+
                           if (snapshot.hasError) {
                             return Center(
-                              child: Text(
-                                "Error: ${snapshot.error}",
-                              ),
+                              child: Text("Error: ${snapshot.error}"),
                             );
                           }
+
+                          // =========================
+                          // EMPTY
+                          // =========================
 
                           if (!snapshot.hasData ||
                               snapshot.data!.docs.isEmpty) {
                             return const Center(
                               child: Text(
                                 "No appointments found",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
+                                style: TextStyle(color: Colors.grey),
                               ),
                             );
                           }
 
+                          // =========================
                           // SEARCH FILTER
-                          final appointments =
-                          snapshot.data!.docs
-                              .where((doc) {
-                            final data =
-                            doc.data()
-                            as Map<String, dynamic>;
+                          // =========================
 
+                          final appointments = snapshot.data!.docs.where((doc) {
+                            final data = doc.data() as Map<String, dynamic>;
+
+                            // NEW FIELD FIRST
                             final patient =
-                            (data["patient"] ?? "")
-                                .toString()
-                                .toLowerCase();
+                                (data["patientName"] ?? data["patient"] ?? "")
+                                    .toString()
+                                    .toLowerCase();
 
                             final doctor =
-                            (data["doctor"] ?? "")
-                                .toString()
-                                .toLowerCase();
+                                (data["doctor"] ?? data["doctorName"] ?? "")
+                                    .toString()
+                                    .toLowerCase();
 
-                            final searchText =
-                            search.toLowerCase();
+                            final searchText = search.toLowerCase();
 
-                            return patient
-                                .contains(searchText) ||
-                                doctor
-                                    .contains(searchText);
+                            return patient.contains(searchText) ||
+                                doctor.contains(searchText);
                           }).toList();
 
                           if (appointments.isEmpty) {
                             return const Center(
                               child: Text(
                                 "No appointments found",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                ),
+                                style: TextStyle(color: Colors.grey),
                               ),
                             );
                           }
 
+                          // =========================
+                          // LIST
+                          // =========================
+
                           return ListView.builder(
-                            itemCount:
-                            appointments.length,
+                            itemCount: appointments.length,
 
                             itemBuilder: (_, index) {
-                              final document =
-                              appointments[index];
+                              final document = appointments[index];
 
                               final data =
-                              document.data()
-                              as Map<String, dynamic>;
+                                  document.data() as Map<String, dynamic>;
+
+                              // =========================
+                              // PATIENT NAME
+                              // =========================
 
                               final patient =
-                              (data["patient"] ??
-                                  "Unknown Patient")
-                                  .toString();
+                                  (data["patientName"] ??
+                                          data["patient"] ??
+                                          "Unknown Patient")
+                                      .toString();
+
+                              // =========================
+                              // DOCTOR NAME
+                              // =========================
 
                               final doctor =
-                              (data["doctor"] ??
-                                  "Unknown Doctor")
+                                  (data["doctor"] ??
+                                          data["doctorName"] ??
+                                          "Unknown Doctor")
+                                      .toString();
+
+                              // =========================
+                              // TIME
+                              // =========================
+
+                              final time = (data["time"] ?? "No time")
                                   .toString();
 
-                              final time =
-                              (data["time"] ??
-                                  "No time")
-                                  .toString();
+                              // =========================
+                              // STATUS
+                              // =========================
 
-                              final status =
-                              (data["status"] ??
-                                  "Pending")
+                              final status = (data["status"] ?? "Pending")
                                   .toString();
 
                               return Card(
                                 color: Colors.white,
-
-                                margin:
-                                const EdgeInsets.only(
-                                  bottom: 10,
-                                ),
+                                margin: const EdgeInsets.only(bottom: 10),
 
                                 child: ListTile(
-                                  leading:
-                                  const PatientAvatar(),
+                                  // =========================
+                                  // PATIENT AVATAR
+                                  // =========================
 
+                                  leading: const PatientAvatar(),
+
+                                  // =========================
+                                  // PATIENT NAME
+                                  // =========================
                                   title: Text(
                                     patient,
-                                    style:
-                                    const TextStyle(
-                                      fontWeight:
-                                      FontWeight.bold,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
 
-                                  subtitle: Text(
-                                    "$doctor\n$time",
-                                  ),
+                                  // =========================
+                                  // DOCTOR + TIME
+                                  // =========================
+                                  subtitle: Text("$doctor\n$time"),
 
                                   isThreeLine: true,
 
+                                  // =========================
+                                  // STATUS + MENU
+                                  // =========================
                                   trailing: Row(
-                                    mainAxisSize:
-                                    MainAxisSize.min,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      StatusBadge(
-                                        status: status,
-                                      ),
+                                      StatusBadge(status: status),
 
-                                      PopupMenuButton<
-                                          String>(
-                                        icon:
-                                        const Icon(
+                                      PopupMenuButton<String>(
+                                        icon: const Icon(
                                           Icons.more_vert,
-                                          color: Colors
-                                              .blueAccent,
+                                          color: Colors.blueAccent,
                                         ),
 
                                         itemBuilder: (_) {
                                           return const [
-                                            PopupMenuItem<
-                                                String>(
+                                            PopupMenuItem<String>(
                                               value: "edit",
                                               child: Row(
                                                 children: [
                                                   Icon(
                                                     Icons.edit,
-                                                    color: Colors
-                                                        .blueAccent,
+                                                    color: Colors.blueAccent,
                                                   ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(
-                                                    "Edit",
-                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text("Edit"),
                                                 ],
                                               ),
                                             ),
 
-                                            PopupMenuItem<
-                                                String>(
-                                              value:
-                                              "confirm",
+                                            PopupMenuItem<String>(
+                                              value: "confirm",
                                               child: Row(
                                                 children: [
                                                   Icon(
                                                     Icons.check_circle,
-                                                    color: Colors
-                                                        .green,
+                                                    color: Colors.green,
                                                   ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(
-                                                    "Confirm",
-                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text("Confirm"),
                                                 ],
                                               ),
                                             ),
 
-                                            PopupMenuItem<
-                                                String>(
-                                              value:
-                                              "complete",
+                                            PopupMenuItem<String>(
+                                              value: "complete",
                                               child: Row(
                                                 children: [
                                                   Icon(
                                                     Icons.done_all,
-                                                    color: Colors
-                                                        .green,
+                                                    color: Colors.green,
                                                   ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(
-                                                    "Complete",
-                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text("Complete"),
                                                 ],
                                               ),
                                             ),
 
-                                            PopupMenuItem<
-                                                String>(
-                                              value:
-                                              "cancel",
+                                            PopupMenuItem<String>(
+                                              value: "cancel",
                                               child: Row(
                                                 children: [
                                                   Icon(
                                                     Icons.cancel,
-                                                    color: Colors
-                                                        .red,
+                                                    color: Colors.red,
                                                   ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(
-                                                    "Cancel",
-                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text("Cancel"),
                                                 ],
                                               ),
                                             ),
 
-                                            PopupMenuItem<
-                                                String>(
-                                              value:
-                                              "delete",
+                                            PopupMenuItem<String>(
+                                              value: "delete",
                                               child: Row(
                                                 children: [
                                                   Icon(
                                                     Icons.delete,
-                                                    color: Colors
-                                                        .red,
+                                                    color: Colors.red,
                                                   ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(
-                                                    "Delete",
-                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text("Delete"),
                                                 ],
                                               ),
                                             ),
                                           ];
                                         },
 
-                                        onSelected:
-                                            (value) {
-                                          if (value ==
-                                              "edit") {
+                                        onSelected: (value) {
+                                          // EDIT
+                                          if (value == "edit") {
                                             editAppointment(
                                               document.id,
                                               patient,
@@ -537,36 +471,33 @@ class _ManageAppointmentsState
                                             );
                                           }
 
-                                          if (value ==
-                                              "confirm") {
+                                          // CONFIRM
+                                          if (value == "confirm") {
                                             changeStatus(
                                               document.id,
                                               "Confirmed",
                                             );
                                           }
 
-                                          if (value ==
-                                              "complete") {
+                                          // COMPLETE
+                                          if (value == "complete") {
                                             changeStatus(
                                               document.id,
                                               "Completed",
                                             );
                                           }
 
-                                          if (value ==
-                                              "cancel") {
+                                          // CANCEL
+                                          if (value == "cancel") {
                                             changeStatus(
                                               document.id,
                                               "Cancelled",
                                             );
                                           }
 
-                                          if (value ==
-                                              "delete") {
-                                            confirmDelete(
-                                              document.id,
-                                              patient,
-                                            );
+                                          // DELETE
+                                          if (value == "delete") {
+                                            confirmDelete(document.id, patient);
                                           }
                                         },
                                       ),
@@ -582,33 +513,24 @@ class _ManageAppointmentsState
 
                     const SizedBox(height: 10),
 
+                    // =========================
                     // ADD BUTTON
+                    // =========================
                     SizedBox(
                       width: double.infinity,
 
                       child: ElevatedButton.icon(
-                        onPressed:
-                        addAppointment,
+                        onPressed: addAppointment,
 
-                        style:
-                        ElevatedButton.styleFrom(
-                          backgroundColor:
-                          Colors.blueAccent,
-                          foregroundColor:
-                          Colors.white,
-                          padding:
-                          const EdgeInsets.symmetric(
-                            vertical: 14,
-                          ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
 
-                        icon: const Icon(
-                          Icons.add,
-                        ),
+                        icon: const Icon(Icons.add),
 
-                        label: const Text(
-                          "Add New Appointment",
-                        ),
+                        label: const Text("Add New Appointment"),
                       ),
                     ),
                   ],
@@ -626,8 +548,7 @@ class _ManageAppointmentsState
 // ADD APPOINTMENT DIALOG
 // ==========================================================================
 
-class AddAppointmentDialog
-    extends StatefulWidget {
+class AddAppointmentDialog extends StatefulWidget {
   final VoidCallback onSuccess;
   final Function(String) onError;
 
@@ -638,20 +559,13 @@ class AddAppointmentDialog
   });
 
   @override
-  State<AddAppointmentDialog> createState() =>
-      _AddAppointmentDialogState();
+  State<AddAppointmentDialog> createState() => _AddAppointmentDialogState();
 }
 
-class _AddAppointmentDialogState
-    extends State<AddAppointmentDialog> {
-  final patient =
-  TextEditingController();
-
-  final doctor =
-  TextEditingController();
-
-  final time =
-  TextEditingController();
+class _AddAppointmentDialogState extends State<AddAppointmentDialog> {
+  final patient = TextEditingController();
+  final doctor = TextEditingController();
+  final time = TextEditingController();
 
   String selectedStatus = "Pending";
 
@@ -668,34 +582,29 @@ class _AddAppointmentDialogState
   // =========================
 
   Future<void> saveAppointment() async {
-    final patientName =
-    patient.text.trim();
+    final patientName = patient.text.trim();
+    final doctorName = doctor.text.trim();
+    final appointmentTime = time.text.trim();
 
-    final doctorName =
-    doctor.text.trim();
-
-    final appointmentTime =
-    time.text.trim();
-
-    if (patientName.isEmpty ||
-        doctorName.isEmpty ||
-        appointmentTime.isEmpty) {
-      widget.onError(
-        "Please enter all appointment information",
-      );
+    if (patientName.isEmpty || doctorName.isEmpty || appointmentTime.isEmpty) {
+      widget.onError("Please enter all appointment information");
       return;
     }
 
     try {
-      await FirebaseFirestore.instance
-          .collection("appointments")
-          .add({
-        "patient": patientName,
+      await FirebaseFirestore.instance.collection("appointments").add({
+        // IMPORTANT:
+        // Use patientName for consistency with
+        // appointments created by the patient module.
+        "patientName": patientName,
+
         "doctor": doctorName,
+
         "time": appointmentTime,
+
         "status": selectedStatus,
-        "createdAt":
-        FieldValue.serverTimestamp(),
+
+        "createdAt": FieldValue.serverTimestamp(),
       });
 
       if (mounted) {
@@ -703,9 +612,7 @@ class _AddAppointmentDialogState
         widget.onSuccess();
       }
     } catch (e) {
-      widget.onError(
-        "Error adding appointment",
-      );
+      widget.onError("Error adding appointment");
     }
   }
 
@@ -714,9 +621,7 @@ class _AddAppointmentDialogState
     return AlertDialog(
       title: const Text(
         "Add Appointment",
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold),
       ),
 
       content: SingleChildScrollView(
@@ -724,11 +629,9 @@ class _AddAppointmentDialogState
           children: [
             TextField(
               controller: patient,
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Patient Name",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -736,11 +639,9 @@ class _AddAppointmentDialogState
 
             TextField(
               controller: doctor,
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Doctor Name",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -748,12 +649,10 @@ class _AddAppointmentDialogState
 
             TextField(
               controller: time,
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Appointment Time",
                 hintText: "e.g. 10:00 AM",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -762,37 +661,22 @@ class _AddAppointmentDialogState
             DropdownButtonFormField<String>(
               value: selectedStatus,
 
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Status",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
 
               items: const [
-                DropdownMenuItem(
-                  value: "Pending",
-                  child: Text("Pending"),
-                ),
-                DropdownMenuItem(
-                  value: "Confirmed",
-                  child: Text("Confirmed"),
-                ),
-                DropdownMenuItem(
-                  value: "Completed",
-                  child: Text("Completed"),
-                ),
-                DropdownMenuItem(
-                  value: "Cancelled",
-                  child: Text("Cancelled"),
-                ),
+                DropdownMenuItem(value: "Pending", child: Text("Pending")),
+                DropdownMenuItem(value: "Confirmed", child: Text("Confirmed")),
+                DropdownMenuItem(value: "Completed", child: Text("Completed")),
+                DropdownMenuItem(value: "Cancelled", child: Text("Cancelled")),
               ],
 
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
-                    selectedStatus =
-                        value;
+                    selectedStatus = value;
                   });
                 }
               },
@@ -810,15 +694,11 @@ class _AddAppointmentDialogState
         ),
 
         ElevatedButton(
-          onPressed:
-          saveAppointment,
+          onPressed: saveAppointment,
 
-          style:
-          ElevatedButton.styleFrom(
-            backgroundColor:
-            Colors.blueAccent,
-            foregroundColor:
-            Colors.white,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueAccent,
+            foregroundColor: Colors.white,
           ),
 
           child: const Text("Add"),
@@ -832,8 +712,7 @@ class _AddAppointmentDialogState
 // EDIT APPOINTMENT DIALOG
 // ==========================================================================
 
-class EditAppointmentDialog
-    extends StatefulWidget {
+class EditAppointmentDialog extends StatefulWidget {
   final String documentId;
   final String currentPatient;
   final String currentDoctor;
@@ -855,12 +734,10 @@ class EditAppointmentDialog
   });
 
   @override
-  State<EditAppointmentDialog> createState() =>
-      _EditAppointmentDialogState();
+  State<EditAppointmentDialog> createState() => _EditAppointmentDialogState();
 }
 
-class _EditAppointmentDialogState
-    extends State<EditAppointmentDialog> {
+class _EditAppointmentDialogState extends State<EditAppointmentDialog> {
   late TextEditingController patient;
   late TextEditingController doctor;
   late TextEditingController time;
@@ -871,23 +748,21 @@ class _EditAppointmentDialogState
   void initState() {
     super.initState();
 
-    patient =
-        TextEditingController(
-          text: widget.currentPatient,
-        );
+    patient = TextEditingController(text: widget.currentPatient);
 
-    doctor =
-        TextEditingController(
-          text: widget.currentDoctor,
-        );
+    doctor = TextEditingController(text: widget.currentDoctor);
 
-    time =
-        TextEditingController(
-          text: widget.currentTime,
-        );
+    time = TextEditingController(text: widget.currentTime);
 
-    selectedStatus =
-        widget.currentStatus;
+    selectedStatus = widget.currentStatus;
+
+    // Prevent DropdownButton error if an old
+    // appointment contains a status not in the list.
+    const allowedStatuses = ["Pending", "Confirmed", "Completed", "Cancelled"];
+
+    if (!allowedStatuses.contains(selectedStatus)) {
+      selectedStatus = "Pending";
+    }
   }
 
   @override
@@ -903,21 +778,12 @@ class _EditAppointmentDialogState
   // =========================
 
   Future<void> updateAppointment() async {
-    final patientName =
-    patient.text.trim();
+    final patientName = patient.text.trim();
+    final doctorName = doctor.text.trim();
+    final appointmentTime = time.text.trim();
 
-    final doctorName =
-    doctor.text.trim();
-
-    final appointmentTime =
-    time.text.trim();
-
-    if (patientName.isEmpty ||
-        doctorName.isEmpty ||
-        appointmentTime.isEmpty) {
-      widget.onError(
-        "Please enter all appointment information",
-      );
+    if (patientName.isEmpty || doctorName.isEmpty || appointmentTime.isEmpty) {
+      widget.onError("Please enter all appointment information");
       return;
     }
 
@@ -926,20 +792,23 @@ class _EditAppointmentDialogState
           .collection("appointments")
           .doc(widget.documentId)
           .update({
-        "patient": patientName,
-        "doctor": doctorName,
-        "time": appointmentTime,
-        "status": selectedStatus,
-      });
+            // IMPORTANT:
+            // Save the edited patient using patientName.
+            "patientName": patientName,
+
+            "doctor": doctorName,
+
+            "time": appointmentTime,
+
+            "status": selectedStatus,
+          });
 
       if (mounted) {
         Navigator.pop(context);
         widget.onSuccess();
       }
     } catch (e) {
-      widget.onError(
-        "Error updating appointment",
-      );
+      widget.onError("Error updating appointment");
     }
   }
 
@@ -948,9 +817,7 @@ class _EditAppointmentDialogState
     return AlertDialog(
       title: const Text(
         "Edit Appointment",
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold),
       ),
 
       content: SingleChildScrollView(
@@ -958,11 +825,9 @@ class _EditAppointmentDialogState
           children: [
             TextField(
               controller: patient,
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Patient Name",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -970,11 +835,9 @@ class _EditAppointmentDialogState
 
             TextField(
               controller: doctor,
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Doctor Name",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -982,11 +845,9 @@ class _EditAppointmentDialogState
 
             TextField(
               controller: time,
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Appointment Time",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
             ),
 
@@ -995,37 +856,22 @@ class _EditAppointmentDialogState
             DropdownButtonFormField<String>(
               value: selectedStatus,
 
-              decoration:
-              const InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Status",
-                border:
-                OutlineInputBorder(),
+                border: OutlineInputBorder(),
               ),
 
               items: const [
-                DropdownMenuItem(
-                  value: "Pending",
-                  child: Text("Pending"),
-                ),
-                DropdownMenuItem(
-                  value: "Confirmed",
-                  child: Text("Confirmed"),
-                ),
-                DropdownMenuItem(
-                  value: "Completed",
-                  child: Text("Completed"),
-                ),
-                DropdownMenuItem(
-                  value: "Cancelled",
-                  child: Text("Cancelled"),
-                ),
+                DropdownMenuItem(value: "Pending", child: Text("Pending")),
+                DropdownMenuItem(value: "Confirmed", child: Text("Confirmed")),
+                DropdownMenuItem(value: "Completed", child: Text("Completed")),
+                DropdownMenuItem(value: "Cancelled", child: Text("Cancelled")),
               ],
 
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
-                    selectedStatus =
-                        value;
+                    selectedStatus = value;
                   });
                 }
               },
@@ -1043,15 +889,11 @@ class _EditAppointmentDialogState
         ),
 
         ElevatedButton(
-          onPressed:
-          updateAppointment,
+          onPressed: updateAppointment,
 
-          style:
-          ElevatedButton.styleFrom(
-            backgroundColor:
-            Colors.blueAccent,
-            foregroundColor:
-            Colors.white,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blueAccent,
+            foregroundColor: Colors.white,
           ),
 
           child: const Text("Update"),

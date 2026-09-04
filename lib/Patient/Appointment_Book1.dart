@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'Appointment_Details.dart';
 
 class AppointmentBook1 extends StatefulWidget {
   const AppointmentBook1({super.key});
@@ -8,18 +12,22 @@ class AppointmentBook1 extends StatefulWidget {
 }
 
 class _AppointmentBook1State extends State<AppointmentBook1> {
-  int selectedDate = 1;
-  int selectedTime = 1;
+  int selectedDate = 0;
+  int selectedTime = 0;
+
+  bool isBooking = false;
 
   final TextEditingController reasonController = TextEditingController();
 
-  final List<Map<String, String>> dates = [
-    {"day": "Mon", "date": "20", "month": "May"},
-    {"day": "Tue", "date": "21", "month": "May"},
-    {"day": "Wed", "date": "22", "month": "May"},
-    {"day": "Thu", "date": "23", "month": "May"},
-    {"day": "Fri", "date": "24", "month": "May"},
-  ];
+  // ============================================================
+  // DATES
+  // ============================================================
+
+  late final List<DateTime> dates;
+
+  // ============================================================
+  // AVAILABLE TIMES
+  // ============================================================
 
   final List<String> times = [
     "9:00 AM",
@@ -32,23 +40,94 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
     "6:00 PM",
   ];
 
+  // ============================================================
+  // INIT
+  // ============================================================
+
+  @override
+  void initState() {
+    super.initState();
+
+    final today = DateTime.now();
+
+    dates = List.generate(
+      5,
+          (index) => DateTime(
+        today.year,
+        today.month,
+        today.day + index,
+      ),
+    );
+  }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
+
   @override
   void dispose() {
     reasonController.dispose();
     super.dispose();
   }
 
-  // ==============================================================
+  // ============================================================
+  // MONTH NAME
+  // ============================================================
+
+  String getMonthName(int month) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    return months[month - 1];
+  }
+
+  // ============================================================
+  // DAY NAME
+  // ============================================================
+
+  String getDayName(int weekday) {
+    const days = [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun",
+    ];
+
+    return days[weekday - 1];
+  }
+
+  // ============================================================
+  // FORMAT DATE
+  // ============================================================
+
+  String formatDate(DateTime date) {
+    return "${date.day} ${getMonthName(date.month)} ${date.year}";
+  }
+
+  // ============================================================
   // DATE CARD
-  // ==============================================================
+  // ============================================================
 
   Widget dateCard(
-    String day,
-    String date,
-    String month,
-    bool selected,
-    VoidCallback onTap,
-  ) {
+      DateTime date,
+      bool selected,
+      VoidCallback onTap,
+      ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -56,13 +135,12 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
         height: 89,
         decoration: BoxDecoration(
           color: selected ? Colors.blueAccent : Colors.white,
-
           borderRadius: BorderRadius.circular(10),
-
           border: Border.all(
-            color: selected ? Colors.blueAccent : Colors.grey.shade300,
+            color: selected
+                ? Colors.blueAccent
+                : Colors.grey.shade300,
           ),
-
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withValues(alpha: 0.15),
@@ -70,29 +148,26 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
             ),
           ],
         ),
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              day,
+              getDayName(date.weekday),
               style: TextStyle(
                 color: selected ? Colors.white : Colors.black,
                 fontSize: 15,
               ),
             ),
-
             Text(
-              date,
+              date.day.toString(),
               style: TextStyle(
                 color: selected ? Colors.white : Colors.black,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             Text(
-              month,
+              getMonthName(date.month).substring(0, 3),
               style: TextStyle(
                 color: selected ? Colors.white : Colors.grey,
                 fontSize: 15,
@@ -104,34 +179,34 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
     );
   }
 
-  // ==============================================================
+  // ============================================================
   // TIME CARD
-  // ==============================================================
+  // ============================================================
 
-  Widget timeCard(String time, bool selected, VoidCallback onTap) {
+  Widget timeCard(
+      String time,
+      bool selected,
+      VoidCallback onTap,
+      ) {
     return GestureDetector(
       onTap: onTap,
-
       child: Container(
         width: 120,
         height: 45,
-
         decoration: BoxDecoration(
           color: selected ? Colors.blueAccent : Colors.white,
-
           borderRadius: BorderRadius.circular(10),
-
           border: Border.all(
-            color: selected ? Colors.blueAccent : Colors.grey.shade300,
+            color: selected
+                ? Colors.blueAccent
+                : Colors.grey.shade300,
           ),
         ),
-
         child: Center(
           child: Text(
             time,
             style: TextStyle(
               color: selected ? Colors.white : Colors.blueAccent,
-
               fontWeight: FontWeight.bold,
               fontSize: 15,
             ),
@@ -141,51 +216,225 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
     );
   }
 
-  // ==============================================================
-  // CONFIRM APPOINTMENT
-  // ==============================================================
+  // ============================================================
+  // GET PATIENT NAME FROM FIRESTORE
+  // ============================================================
 
-  void confirmAppointment() {
-    showDialog(
-      context: context,
+  Future<String> getPatientName(User user) async {
+    // ----------------------------------------------------------
+    // First try Firebase Authentication displayName
+    // ----------------------------------------------------------
 
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
+    if (user.displayName != null &&
+        user.displayName!.trim().isNotEmpty) {
+      return user.displayName!.trim();
+    }
 
-          title: const Text(
-            "Appointment Confirmed",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+    // ----------------------------------------------------------
+    // Get patient from patients collection using email
+    // ----------------------------------------------------------
 
-          content: const Text(
-            "Your appointment with Dr. Ayesha Khan has been booked successfully.",
-            style: TextStyle(fontSize: 15),
-          ),
+    if (user.email != null && user.email!.isNotEmpty) {
+      final patientQuery = await FirebaseFirestore.instance
+          .collection('patients')
+          .where(
+        'email',
+        isEqualTo: user.email,
+      )
+          .limit(1)
+          .get();
 
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+      if (patientQuery.docs.isNotEmpty) {
+        final patientData = patientQuery.docs.first.data();
 
-              child: const Text(
-                "OK",
-                style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+        final name = patientData['name']?.toString().trim();
+
+        if (name != null && name.isNotEmpty) {
+          return name;
+        }
+      }
+    }
+
+    // ----------------------------------------------------------
+    // Fallback
+    // ----------------------------------------------------------
+
+    return "Patient";
+  }
+
+  // ============================================================
+  // SAVE APPOINTMENT TO FIRESTORE
+  // ============================================================
+
+  Future<void> confirmAppointment() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    // ----------------------------------------------------------
+    // CHECK LOGIN
+    // ----------------------------------------------------------
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please login first."),
+        ),
+      );
+
+      return;
+    }
+
+    setState(() {
+      isBooking = true;
+    });
+
+    final selectedDateValue = dates[selectedDate];
+    final selectedTimeValue = times[selectedTime];
+
+    final reason = reasonController.text.trim().isEmpty
+        ? 'Regular Checkup'
+        : reasonController.text.trim();
+
+    try {
+      // --------------------------------------------------------
+      // GET PATIENT NAME
+      // --------------------------------------------------------
+
+      final patientName = await getPatientName(user);
+
+      // --------------------------------------------------------
+      // SAVE APPOINTMENT TO FIRESTORE
+      // --------------------------------------------------------
+
+      final appointmentRef = await FirebaseFirestore.instance
+          .collection('appointments')
+          .add({
+        // Doctor information
+        'doctor': 'Dr. Ayesha Khan',
+        'specialization': 'Cardiologist',
+
+        // ------------------------------------------------------
+        // Patient information
+        // ------------------------------------------------------
+
+        'patientId': user.uid,
+        'patientName': patientName,
+        'patientEmail': user.email ?? '',
+
+        // ------------------------------------------------------
+        // Appointment information
+        // ------------------------------------------------------
+
+        'date': Timestamp.fromDate(selectedDateValue),
+        'time': selectedTimeValue,
+        'reason': reason,
+
+        // ------------------------------------------------------
+        // Status
+        // ------------------------------------------------------
+
+        'status': 'Pending',
+
+        // ------------------------------------------------------
+        // Creation time
+        // ------------------------------------------------------
+
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      setState(() {
+        isBooking = false;
+      });
+
+      // --------------------------------------------------------
+      // CONFIRMATION DIALOG
+      // --------------------------------------------------------
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+
+            title: const Text(
+              "Appointment Confirmed",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ],
-        );
-      },
-    );
+
+            content: Text(
+              "Your appointment with Dr. Ayesha Khan "
+                  "has been booked successfully.\n\n"
+                  "Patient: $patientName\n"
+                  "Date: ${formatDate(selectedDateValue)}\n"
+                  "Time: $selectedTimeValue",
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AppointmentDetails(
+                        appointmentId: appointmentRef.id,
+                        doctor: 'Dr. Ayesha Khan',
+                        specialization: 'Cardiologist',
+                        date: selectedDateValue,
+                        time: selectedTimeValue,
+                        reason: reason,
+                        status: 'Pending',
+                      ),
+                    ),
+                  );
+                },
+
+                child: const Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isBooking = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Failed to book appointment: $e",
+          ),
+        ),
+      );
+    }
   }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
+    final selectedDateValue = dates[selectedDate];
+
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
 
@@ -194,13 +443,15 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
           child: Container(
             width: 600,
 
-            constraints: const BoxConstraints(minHeight: 700, maxHeight: 900),
+            constraints: const BoxConstraints(
+              minHeight: 700,
+              maxHeight: 900,
+            ),
 
             clipBehavior: Clip.hardEdge,
 
             decoration: BoxDecoration(
               color: Colors.white,
-
               borderRadius: BorderRadius.circular(25),
 
               boxShadow: [
@@ -214,9 +465,9 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
 
             child: Column(
               children: [
-                // ====================================================
+                // ==================================================
                 // APP BAR
-                // ====================================================
+                // ==================================================
 
                 Container(
                   height: 80,
@@ -226,7 +477,9 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                     color: Colors.white,
 
                     border: Border(
-                      bottom: BorderSide(color: Color(0xFFE5E5E5)),
+                      bottom: BorderSide(
+                        color: Color(0xFFE5E5E5),
+                      ),
                     ),
                   ),
 
@@ -248,13 +501,16 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
 
                       const Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
 
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
 
                           children: [
                             Text(
                               "Book Appointment",
+
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 23,
@@ -264,6 +520,7 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
 
                             Text(
                               "Dr. Ayesha Khan",
+
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -277,15 +534,17 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                   ),
                 ),
 
-                // ====================================================
+                // ==================================================
                 // BODY
-                // ====================================================
+                // ==================================================
+
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(25),
 
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
 
                       children: [
                         // ==================================================
@@ -294,6 +553,7 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
 
                         const Text(
                           "Select Date",
+
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -307,22 +567,21 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                           height: 95,
 
                           child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
+                            scrollDirection:
+                            Axis.horizontal,
 
                             itemCount: dates.length,
 
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(width: 12),
+                            separatorBuilder:
+                                (context, index) =>
+                            const SizedBox(width: 12),
 
-                            itemBuilder: (context, index) {
-                              final date = dates[index];
-
+                            itemBuilder:
+                                (context, index) {
                               return dateCard(
-                                date["day"]!,
-                                date["date"]!,
-                                date["month"]!,
+                                dates[index],
                                 selectedDate == index,
-                                () {
+                                    () {
                                   setState(() {
                                     selectedDate = index;
                                   });
@@ -337,8 +596,10 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                         // ==================================================
                         // SELECT TIME
                         // ==================================================
+
                         const Text(
                           "Select Time",
+
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -352,17 +613,21 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                           spacing: 15,
                           runSpacing: 12,
 
-                          children: List.generate(times.length, (index) {
-                            return timeCard(
-                              times[index],
-                              selectedTime == index,
-                              () {
-                                setState(() {
-                                  selectedTime = index;
-                                });
-                              },
-                            );
-                          }),
+                          children:
+                          List.generate(
+                            times.length,
+                                (index) {
+                              return timeCard(
+                                times[index],
+                                selectedTime == index,
+                                    () {
+                                  setState(() {
+                                    selectedTime = index;
+                                  });
+                                },
+                              );
+                            },
+                          ),
                         ),
 
                         const SizedBox(height: 25),
@@ -370,8 +635,10 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                         // ==================================================
                         // REASON
                         // ==================================================
+
                         const Text(
                           "Reason For Visit",
+
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -382,28 +649,45 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                         const SizedBox(height: 10),
 
                         TextField(
-                          controller: reasonController,
+                          controller:
+                          reasonController,
 
                           maxLines: 3,
 
-                          decoration: InputDecoration(
-                            hintText: "Enter reason (Optional)",
+                          decoration:
+                          InputDecoration(
+                            hintText:
+                            "Enter reason (Optional)",
 
                             filled: true,
 
-                            fillColor: const Color(0xFFF5F7FA),
-
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-
-                              borderSide: BorderSide.none,
+                            fillColor:
+                            const Color(
+                              0xFFF5F7FA,
                             ),
 
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            border:
+                            OutlineInputBorder(
+                              borderRadius:
+                              BorderRadius.circular(
+                                12,
+                              ),
 
-                              borderSide: const BorderSide(
-                                color: Colors.blueAccent,
+                              borderSide:
+                              BorderSide.none,
+                            ),
+
+                            focusedBorder:
+                            OutlineInputBorder(
+                              borderRadius:
+                              BorderRadius.circular(
+                                12,
+                              ),
+
+                              borderSide:
+                              const BorderSide(
+                                color:
+                                Colors.blueAccent,
                                 width: 1.5,
                               ),
                             ),
@@ -413,55 +697,74 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                         const SizedBox(height: 30),
 
                         // ==================================================
-                        // APPOINTMENT SUMMARY
+                        // SUMMARY
                         // ==================================================
+
                         Container(
                           width: double.infinity,
 
-                          padding: const EdgeInsets.all(18),
+                          padding:
+                          const EdgeInsets.all(18),
 
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F9FF),
+                          decoration:
+                          BoxDecoration(
+                            color:
+                            const Color(
+                              0xFFF5F9FF,
+                            ),
 
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                            BorderRadius.circular(
+                              12,
+                            ),
 
-                            border: Border.all(
-                              color: Colors.blueAccent.withValues(alpha: 0.15),
+                            border:
+                            Border.all(
+                              color: Colors.blueAccent
+                                  .withValues(
+                                alpha: 0.15,
+                              ),
                             ),
                           ),
 
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
 
                             children: [
                               const Text(
                                 "Appointment Summary",
+
                                 style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight:
+                                  FontWeight.bold,
                                 ),
                               ),
 
                               const SizedBox(height: 12),
 
                               Text(
-                                "Date: "
-                                "${dates[selectedDate]["date"]} "
-                                "${dates[selectedDate]["month"]}",
-                                style: const TextStyle(
+                                "Date: ${formatDate(selectedDateValue)}",
+
+                                style:
+                                const TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight:
+                                  FontWeight.w600,
                                 ),
                               ),
 
                               const SizedBox(height: 6),
 
                               Text(
-                                "Time: "
-                                "${times[selectedTime]}",
-                                style: const TextStyle(
+                                "Time: ${times[selectedTime]}",
+
+                                style:
+                                const TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight:
+                                  FontWeight.w600,
                                 ),
                               ),
 
@@ -469,9 +772,12 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
 
                               const Text(
                                 "Doctor: Dr. Ayesha Khan",
-                                style: TextStyle(
+
+                                style:
+                                TextStyle(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight:
+                                  FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -483,29 +789,54 @@ class _AppointmentBook1State extends State<AppointmentBook1> {
                         // ==================================================
                         // CONFIRM BUTTON
                         // ==================================================
+
                         SizedBox(
                           width: double.infinity,
                           height: 60,
 
                           child: ElevatedButton(
-                            onPressed: confirmAppointment,
+                            onPressed: isBooking
+                                ? null
+                                : confirmAppointment,
 
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
+                            style:
+                            ElevatedButton.styleFrom(
+                              backgroundColor:
+                              Colors.blueAccent,
 
-                              foregroundColor: Colors.white,
+                              foregroundColor:
+                              Colors.white,
 
                               elevation: 3,
 
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                              shape:
+                              RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.circular(
+                                  10,
+                                ),
                               ),
                             ),
 
-                            child: const Text(
+                            child: isBooking
+                                ? const SizedBox(
+                              height: 25,
+                              width: 25,
+
+                              child:
+                              CircularProgressIndicator(
+                                color:
+                                Colors.white,
+                                strokeWidth: 3,
+                              ),
+                            )
+                                : const Text(
                               "Confirm Appointment",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+
+                              style:
+                              TextStyle(
+                                fontWeight:
+                                FontWeight.bold,
                                 fontSize: 20,
                               ),
                             ),

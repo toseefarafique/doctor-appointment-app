@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'Appointment_Details.dart';
 
 class MyAppointments extends StatefulWidget {
@@ -11,6 +14,153 @@ class MyAppointments extends StatefulWidget {
 class _MyAppointmentsState extends State<MyAppointments> {
   int selectedTab = 0;
 
+  // ============================================================
+  // GET CURRENT PATIENT APPOINTMENTS
+  // ============================================================
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAppointments() {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Stream.empty();
+    }
+
+    return FirebaseFirestore.instance
+        .collection('appointments')
+        .where(
+      'patientId',
+      isEqualTo: user.uid,
+    )
+        .snapshots();
+  }
+
+  // ============================================================
+  // FORMAT DATE
+  // ============================================================
+
+  String formatDate(DateTime date) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
+  }
+
+  // ============================================================
+  // GET FIRESTORE DATE
+  // ============================================================
+
+  DateTime getAppointmentDate(
+      Map<String, dynamic> data,
+      ) {
+    final date = data['date'];
+
+    if (date is Timestamp) {
+      return date.toDate();
+    }
+
+    if (date is DateTime) {
+      return date;
+    }
+
+    return DateTime.now();
+  }
+
+  // ============================================================
+  // UPCOMING
+  // ============================================================
+
+  bool isUpcoming(
+      Map<String, dynamic> data,
+      ) {
+    final status =
+    (data['status'] ?? 'Pending')
+        .toString()
+        .toLowerCase();
+
+    return status != 'completed' &&
+        status != 'cancelled' &&
+        status != 'rejected';
+  }
+
+  // ============================================================
+  // PAST
+  // ============================================================
+
+  bool isPast(
+      Map<String, dynamic> data,
+      ) {
+    final status =
+    (data['status'] ?? 'Pending')
+        .toString()
+        .toLowerCase();
+
+    return status == 'completed' ||
+        status == 'cancelled' ||
+        status == 'rejected';
+  }
+
+  // ============================================================
+  // OPEN DETAILS
+  // ============================================================
+
+  void openAppointmentDetails(
+      String appointmentId,
+      Map<String, dynamic> data,
+      ) {
+    final appointmentDate =
+    getAppointmentDate(data);
+
+    Navigator.push(
+      context,
+
+      MaterialPageRoute(
+        builder: (context) =>
+            AppointmentDetails(
+              appointmentId: appointmentId,
+
+              doctor:
+              data['doctor']?.toString() ??
+                  'Dr. Ayesha Khan',
+
+              specialization:
+              data['specialization']
+                  ?.toString() ??
+                  'Cardiologist',
+
+              date: appointmentDate,
+
+              time:
+              data['time']?.toString() ??
+                  'Not specified',
+
+              reason:
+              data['reason']?.toString() ??
+                  'Regular Checkup',
+
+              status:
+              data['status']?.toString() ??
+                  'Pending',
+            ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // BUILD
+  // ============================================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,13 +170,20 @@ class _MyAppointmentsState extends State<MyAppointments> {
         child: Container(
           width: 600,
           height: 1100,
+
           clipBehavior: Clip.hardEdge,
+
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(25),
+
+            borderRadius:
+            BorderRadius.circular(25),
+
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: Colors.black
+                    .withValues(alpha: 0.15),
+
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -35,19 +192,30 @@ class _MyAppointmentsState extends State<MyAppointments> {
 
           child: Column(
             children: [
-              // ================= APP BAR =================
+              // ==================================================
+              // APP BAR
+              // ==================================================
 
               Container(
                 height: 70,
-                decoration: const BoxDecoration(color: Colors.blueAccent),
+
+                decoration:
+                const BoxDecoration(
+                  color: Colors.blueAccent,
+                ),
+
                 child: SafeArea(
                   bottom: false,
+
                   child: Row(
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(
+                            context,
+                          );
                         },
+
                         icon: const Icon(
                           Icons.arrow_back,
                           color: Colors.white,
@@ -59,9 +227,11 @@ class _MyAppointmentsState extends State<MyAppointments> {
 
                       const Text(
                         "My Appointments",
+
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                          FontWeight.bold,
                           fontSize: 22,
                         ),
                       ),
@@ -70,42 +240,80 @@ class _MyAppointmentsState extends State<MyAppointments> {
                 ),
               ),
 
-              // ================= CONTENT =================
+              // ==================================================
+              // CONTENT
+              // ==================================================
+
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(10),
+                child:
+                SingleChildScrollView(
+                  padding:
+                  const EdgeInsets.all(10),
+
                   child: Column(
                     children: [
                       const SizedBox(height: 5),
 
-                      // ================= TABS =================
+                      // ==================================================
+                      // TABS
+                      // ==================================================
+
                       Row(
                         children: [
-                          // Upcoming
                           Expanded(
-                            child: GestureDetector(
+                            child:
+                            GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  selectedTab = 0;
+                                  selectedTab =
+                                  0;
                                 });
                               },
-                              child: Container(
+
+                              child:
+                              Container(
                                 height: 45,
-                                decoration: BoxDecoration(
-                                  color: selectedTab == 0
-                                      ? Colors.blueAccent
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.blueAccent),
+
+                                decoration:
+                                BoxDecoration(
+                                  color:
+                                  selectedTab ==
+                                      0
+                                      ? Colors
+                                      .blueAccent
+                                      : Colors
+                                      .white,
+
+                                  borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                    10,
+                                  ),
+
+                                  border:
+                                  Border.all(
+                                    color: Colors
+                                        .blueAccent,
+                                  ),
                                 ),
+
                                 child: Center(
                                   child: Text(
                                     "Upcoming",
-                                    style: TextStyle(
-                                      color: selectedTab == 0
-                                          ? Colors.white
-                                          : Colors.blueAccent,
-                                      fontWeight: FontWeight.bold,
+
+                                    style:
+                                    TextStyle(
+                                      color:
+                                      selectedTab ==
+                                          0
+                                          ? Colors
+                                          .white
+                                          : Colors
+                                          .blueAccent,
+
+                                      fontWeight:
+                                      FontWeight
+                                          .bold,
                                     ),
                                   ),
                                 ),
@@ -113,33 +321,64 @@ class _MyAppointmentsState extends State<MyAppointments> {
                             ),
                           ),
 
-                          const SizedBox(width: 15),
+                          const SizedBox(
+                            width: 15,
+                          ),
 
-                          // Past
                           Expanded(
-                            child: GestureDetector(
+                            child:
+                            GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  selectedTab = 1;
+                                  selectedTab =
+                                  1;
                                 });
                               },
-                              child: Container(
+
+                              child:
+                              Container(
                                 height: 45,
-                                decoration: BoxDecoration(
-                                  color: selectedTab == 1
-                                      ? Colors.blueAccent
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.blueAccent),
+
+                                decoration:
+                                BoxDecoration(
+                                  color:
+                                  selectedTab ==
+                                      1
+                                      ? Colors
+                                      .blueAccent
+                                      : Colors
+                                      .white,
+
+                                  borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                    10,
+                                  ),
+
+                                  border:
+                                  Border.all(
+                                    color: Colors
+                                        .blueAccent,
+                                  ),
                                 ),
+
                                 child: Center(
                                   child: Text(
                                     "Past",
-                                    style: TextStyle(
-                                      color: selectedTab == 1
-                                          ? Colors.white
-                                          : Colors.blueAccent,
-                                      fontWeight: FontWeight.bold,
+
+                                    style:
+                                    TextStyle(
+                                      color:
+                                      selectedTab ==
+                                          1
+                                          ? Colors
+                                          .white
+                                          : Colors
+                                          .blueAccent,
+
+                                      fontWeight:
+                                      FontWeight
+                                          .bold,
                                     ),
                                   ),
                                 ),
@@ -149,13 +388,112 @@ class _MyAppointmentsState extends State<MyAppointments> {
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(
+                        height: 20,
+                      ),
 
-                      // ================= UPCOMING =================
-                      if (selectedTab == 0) _upcomingAppointment(),
+                      // ==================================================
+                      // FIRESTORE
+                      // ==================================================
 
-                      // ================= PAST =================
-                      if (selectedTab == 1) _pastAppointment(),
+                      StreamBuilder<
+                          QuerySnapshot<
+                              Map<String,
+                                  dynamic>>>(
+                        stream:
+                        getAppointments(),
+
+                        builder:
+                            (context, snapshot) {
+                          if (snapshot
+                              .connectionState ==
+                              ConnectionState
+                                  .waiting) {
+                            return const Padding(
+                              padding:
+                              EdgeInsets.all(
+                                40,
+                              ),
+
+                              child:
+                              CircularProgressIndicator(
+                                color: Colors
+                                    .blueAccent,
+                              ),
+                            );
+                          }
+
+                          if (snapshot.hasError) {
+                            return Padding(
+                              padding:
+                              const EdgeInsets
+                                  .all(
+                                30,
+                              ),
+
+                              child: Text(
+                                "Error loading appointments:\n${snapshot.error}",
+
+                                textAlign:
+                                TextAlign.center,
+
+                                style:
+                                const TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            );
+                          }
+
+                          if (!snapshot.hasData ||
+                              snapshot
+                                  .data!
+                                  .docs
+                                  .isEmpty) {
+                            return _emptyAppointments();
+                          }
+
+                          final documents =
+                              snapshot.data!.docs;
+
+                          final filteredDocuments =
+                          documents.where(
+                                (doc) {
+                              final data =
+                              doc.data();
+
+                              if (selectedTab ==
+                                  0) {
+                                return isUpcoming(
+                                  data,
+                                );
+                              } else {
+                                return isPast(
+                                  data,
+                                );
+                              }
+                            },
+                          ).toList();
+
+                          if (filteredDocuments
+                              .isEmpty) {
+                            return _emptyAppointments();
+                          }
+
+                          return Column(
+                            children:
+                            filteredDocuments
+                                .map(
+                                  (doc) {
+                                return _appointmentCard(
+                                  doc.id,
+                                  doc.data(),
+                                );
+                              },
+                            ).toList(),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -168,43 +506,105 @@ class _MyAppointmentsState extends State<MyAppointments> {
   }
 
   // ============================================================
-  // UPCOMING APPOINTMENT
+  // APPOINTMENT CARD
   // ============================================================
 
-  Widget _upcomingAppointment() {
+  Widget _appointmentCard(
+      String appointmentId,
+      Map<String, dynamic> data,
+      ) {
+    final date =
+    getAppointmentDate(data);
+
+    final doctor =
+        data['doctor']?.toString() ??
+            'Dr. Ayesha Khan';
+
+    final specialization =
+        data['specialization']?.toString() ??
+            'Cardiologist';
+
+    final time =
+        data['time']?.toString() ??
+            'Not specified';
+
+    final status =
+        data['status']?.toString() ??
+            'Pending';
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(15),
+
+      margin:
+      const EdgeInsets.only(bottom: 15),
+
+      padding:
+      const EdgeInsets.all(15),
+
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade300),
+
+        borderRadius:
+        BorderRadius.circular(15),
+
+        border: Border.all(
+          color: Colors.grey.shade300,
+        ),
+
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5),
+          BoxShadow(
+            color: Colors.black
+                .withValues(alpha: 0.05),
+
+            blurRadius: 5,
+          ),
         ],
       ),
+
       child: Column(
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+
             children: [
-              // Doctor Image
+              // ==================================================
+              // DOCTOR IMAGE
+              // ==================================================
+
               Container(
                 height: 90,
                 width: 90,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE3EDFF),
-                  borderRadius: BorderRadius.circular(12),
+
+                decoration:
+                BoxDecoration(
+                  color:
+                  const Color(0xFFE3EDFF),
+
+                  borderRadius:
+                  BorderRadius.circular(
+                    12,
+                  ),
                 ),
+
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                  BorderRadius.circular(
+                    12,
+                  ),
+
                   child: Image.asset(
                     'assets/images/Doctor1.png',
+
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
+
+                    errorBuilder:
+                        (context, error,
+                        stackTrace) {
                       return const Icon(
                         Icons.person,
-                        color: Colors.blueAccent,
+                        color:
+                        Colors.blueAccent,
                         size: 55,
                       );
                     },
@@ -214,49 +614,66 @@ class _MyAppointmentsState extends State<MyAppointments> {
 
               const SizedBox(width: 15),
 
-              // Doctor Information
+              // ==================================================
+              // INFORMATION
+              // ==================================================
+
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+                  children: [
                     Text(
-                      "Dr. Ayesha Khan",
-                      style: TextStyle(
+                      doctor,
+
+                      style:
+                      const TextStyle(
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                        FontWeight.bold,
                         fontSize: 18,
                       ),
                     ),
 
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
 
                     Text(
-                      "Cardiologist",
-                      style: TextStyle(
+                      specialization,
+
+                      style:
+                      const TextStyle(
                         color: Colors.black87,
-                        fontWeight: FontWeight.w600,
+                        fontWeight:
+                        FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),
 
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
 
                     Text(
-                      "21-May-2024",
-                      style: TextStyle(
+                      formatDate(date),
+
+                      style:
+                      const TextStyle(
                         color: Colors.black87,
-                        fontWeight: FontWeight.w600,
+                        fontWeight:
+                        FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),
 
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
 
                     Text(
-                      "10:00 PM",
-                      style: TextStyle(
+                      time,
+
+                      style:
+                      const TextStyle(
                         color: Colors.black87,
-                        fontWeight: FontWeight.w600,
+                        fontWeight:
+                        FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),
@@ -268,32 +685,54 @@ class _MyAppointmentsState extends State<MyAppointments> {
 
           const SizedBox(height: 15),
 
-          // Upcoming Button
+          // ==================================================
+          // BUTTON
+          // ==================================================
+
           SizedBox(
             width: double.infinity,
             height: 42,
+
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AppointmentDetails(),
-                  ),
+                openAppointmentDetails(
+                  appointmentId,
+                  data,
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent.shade100,
-                foregroundColor: Colors.blueAccent,
+
+              style:
+              ElevatedButton.styleFrom(
+                backgroundColor:
+                selectedTab == 0
+                    ? Colors.blueAccent
+                    .shade100
+                    : Colors.grey.shade200,
+
+                foregroundColor:
+                Colors.blueAccent,
+
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+
+                shape:
+                RoundedRectangleBorder(
+                  borderRadius:
+                  BorderRadius.circular(
+                    10,
+                  ),
                 ),
               ),
-              child: const Text(
-                "Upcoming",
+
+              child: Text(
+                status,
+
                 style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
+                  color: selectedTab == 0
+                      ? Colors.blueAccent
+                      : Colors.grey.shade700,
+
+                  fontWeight:
+                  FontWeight.bold,
                 ),
               ),
             ),
@@ -304,123 +743,43 @@ class _MyAppointmentsState extends State<MyAppointments> {
   }
 
   // ============================================================
-  // PAST APPOINTMENT
+  // EMPTY
   // ============================================================
 
-  Widget _pastAppointment() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5),
-        ],
+  Widget _emptyAppointments() {
+    return Padding(
+      padding:
+      const EdgeInsets.only(
+        top: 60,
+        left: 20,
+        right: 20,
       ),
+
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Doctor Image
-              Container(
-                height: 90,
-                width: 90,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE3EDFF),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    'assets/images/Doctor1.png',
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.person,
-                        color: Colors.blueAccent,
-                        size: 55,
-                      );
-                    },
-                  ),
-                ),
-              ),
+          Icon(
+            Icons.calendar_month_outlined,
 
-              const SizedBox(width: 15),
+            size: 80,
 
-              // Doctor Information
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "Dr. Ayesha Khan",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-
-                    SizedBox(height: 4),
-
-                    Text(
-                      "Cardiologist",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-
-                    SizedBox(height: 5),
-
-                    Text(
-                      "21-May-2024",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-
-                    SizedBox(height: 3),
-
-                    Text(
-                      "10:00 PM",
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            color: Colors.grey.shade400,
           ),
 
           const SizedBox(height: 15),
 
-          // Completed Status
-          Container(
-            width: double.infinity,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(10),
+          Text(
+            selectedTab == 0
+                ? "No upcoming appointments"
+                : "No past appointments",
+
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight:
+              FontWeight.bold,
+              color: Colors.grey,
             ),
-            child: const Center(
-              child: Text(
-                "Completed",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+
+            textAlign: TextAlign.center,
           ),
         ],
       ),
