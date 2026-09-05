@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -15,7 +16,8 @@ class AiChat extends StatefulWidget {
 class _AiChatState extends State<AiChat> {
   final List<Map<String, String>> messages = [];
 
-  final TextEditingController messageController = TextEditingController();
+  final TextEditingController messageController =
+      TextEditingController();
 
   bool isLoading = false;
 
@@ -23,23 +25,33 @@ class _AiChatState extends State<AiChat> {
   // SEND MESSAGE TO OPENROUTER
   // ============================================================
 
-  Future<String> sendMessage(List<Map<String, String>> messages) async {
+  Future<String> sendMessage(
+    List<Map<String, String>> chatMessages,
+  ) async {
     final response = await http.post(
-      Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+      Uri.parse(
+        'https://openrouter.ai/api/v1/chat/completions',
+      ),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $openRouterApiKey',
       },
-      body: jsonEncode({'model': 'openai/gpt-4o-mini', 'messages': messages}),
+      body: jsonEncode({
+        'model': 'openai/gpt-4o-mini',
+        'messages': chatMessages,
+      }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('API Error ${response.statusCode}: ${response.body}');
+      throw Exception(
+        'API Error ${response.statusCode}: ${response.body}',
+      );
     }
 
     final data = jsonDecode(response.body);
 
-    final reply = data['choices']?[0]?['message']?['content'];
+    final reply =
+        data['choices']?[0]?['message']?['content'];
 
     if (reply == null) {
       throw Exception('Invalid response from AI.');
@@ -60,7 +72,10 @@ class _AiChatState extends State<AiChat> {
     }
 
     setState(() {
-      messages.add({'role': 'user', 'content': userMessage});
+      messages.add({
+        'role': 'user',
+        'content': userMessage,
+      });
 
       messageController.clear();
       isLoading = true;
@@ -72,7 +87,10 @@ class _AiChatState extends State<AiChat> {
       if (!mounted) return;
 
       setState(() {
-        messages.add({'role': 'assistant', 'content': aiReply});
+        messages.add({
+          'role': 'assistant',
+          'content': aiReply,
+        });
 
         isLoading = false;
       });
@@ -85,7 +103,9 @@ class _AiChatState extends State<AiChat> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Unable to connect to AI.'),
+          content: const Text(
+            'Unable to connect to AI.',
+          ),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(20),
           shape: RoundedRectangleBorder(
@@ -116,13 +136,11 @@ class _AiChatState extends State<AiChat> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
-
       body: Center(
         child: Container(
           width: 600,
           height: 1100,
           clipBehavior: Clip.hardEdge,
-
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(25),
@@ -134,7 +152,6 @@ class _AiChatState extends State<AiChat> {
               ),
             ],
           ),
-
           child: Column(
             children: [
               // ==================================================
@@ -149,10 +166,8 @@ class _AiChatState extends State<AiChat> {
                     bottom: Radius.circular(10),
                   ),
                 ),
-
                 child: SafeArea(
                   bottom: false,
-
                   child: Row(
                     children: [
                       // Back Button
@@ -183,22 +198,22 @@ class _AiChatState extends State<AiChat> {
                       // Title
                       const Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "MediBook AI",
+                              'MediBook AI',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 21,
                               ),
                             ),
-
                             SizedBox(height: 2),
-
                             Text(
-                              "Your Personal Health Assistant",
+                              'Your Personal Health Assistant',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -220,7 +235,7 @@ class _AiChatState extends State<AiChat> {
                           color: Colors.white,
                           size: 26,
                         ),
-                        tooltip: "Clear Chat",
+                        tooltip: 'Clear Chat',
                       ),
                     ],
                   ),
@@ -230,10 +245,10 @@ class _AiChatState extends State<AiChat> {
               // ==================================================
               // CHAT AREA
               // ==================================================
+
               Expanded(
                 child: Container(
                   color: Colors.blue.shade50,
-
                   child: Column(
                     children: [
                       // ==========================================
@@ -243,7 +258,6 @@ class _AiChatState extends State<AiChat> {
                       Expanded(
                         child: ListView(
                           padding: const EdgeInsets.all(15),
-
                           children: [
                             // ====================================
                             // WELCOME MESSAGE
@@ -251,47 +265,45 @@ class _AiChatState extends State<AiChat> {
 
                             Align(
                               alignment: Alignment.centerLeft,
-
                               child: Container(
                                 width: 330,
-
-                                margin: const EdgeInsets.only(bottom: 15),
-
-                                padding: const EdgeInsets.all(10),
-
+                                margin: const EdgeInsets.only(
+                                  bottom: 15,
+                                ),
+                                padding:
+                                    const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius:
+                                      BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
+                                      color:
+                                          Colors.black.withValues(
                                         alpha: 0.04,
                                       ),
                                       blurRadius: 4,
                                     ),
                                   ],
                                 ),
-
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
                                   children: [
                                     const CircleAvatar(
                                       radius: 20,
-                                      backgroundColor: Colors.blueAccent,
-
+                                      backgroundColor:
+                                          Colors.blueAccent,
                                       child: Icon(
                                         Icons.smart_toy,
                                         color: Colors.white,
                                         size: 20,
                                       ),
                                     ),
-
                                     const SizedBox(width: 12),
-
                                     const Expanded(
                                       child: Text(
-                                        "Hello! How can I help you?",
+                                        'Hello! How can I help you?',
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontSize: 17,
@@ -306,35 +318,41 @@ class _AiChatState extends State<AiChat> {
                             // ====================================
                             // USER + AI MESSAGES
                             // ====================================
-                            ...messages.map((message) {
-                              final bool isUser = message['role'] == 'user';
 
+                            ...messages.map((message) {
+                              final bool isUser =
+                                  message['role'] == 'user';
+
+                              // USER MESSAGE
                               if (isUser) {
                                 return Align(
-                                  alignment: Alignment.centerRight,
-
+                                  alignment:
+                                      Alignment.centerRight,
                                   child: Container(
-                                    constraints: const BoxConstraints(
+                                    constraints:
+                                        const BoxConstraints(
                                       maxWidth: 290,
                                     ),
-
-                                    margin: const EdgeInsets.only(bottom: 15),
-
-                                    padding: const EdgeInsets.symmetric(
+                                    margin:
+                                        const EdgeInsets.only(
+                                      bottom: 15,
+                                    ),
+                                    padding:
+                                        const EdgeInsets.symmetric(
                                       vertical: 10,
                                       horizontal: 15,
                                     ),
-
                                     decoration: BoxDecoration(
                                       color: Colors.blueAccent,
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius:
+                                          BorderRadius.circular(12),
                                     ),
-
                                     child: Text(
                                       message['content'] ?? '',
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight:
+                                            FontWeight.bold,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -342,53 +360,55 @@ class _AiChatState extends State<AiChat> {
                                 );
                               }
 
+                              // AI MESSAGE
                               return Align(
-                                alignment: Alignment.centerLeft,
-
+                                alignment:
+                                    Alignment.centerLeft,
                                 child: Container(
-                                  constraints: const BoxConstraints(
+                                  constraints:
+                                      const BoxConstraints(
                                     maxWidth: 330,
                                   ),
-
-                                  margin: const EdgeInsets.only(bottom: 15),
-
-                                  padding: const EdgeInsets.all(10),
-
+                                  margin:
+                                      const EdgeInsets.only(
+                                    bottom: 15,
+                                  ),
+                                  padding:
+                                      const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius:
+                                        BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(
+                                        color:
+                                            Colors.black.withValues(
                                           alpha: 0.04,
                                         ),
                                         blurRadius: 4,
                                       ),
                                     ],
                                   ),
-
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-
                                     children: [
                                       const CircleAvatar(
                                         radius: 20,
-                                        backgroundColor: Colors.blueAccent,
-
+                                        backgroundColor:
+                                            Colors.blueAccent,
                                         child: Icon(
                                           Icons.smart_toy,
                                           color: Colors.white,
                                           size: 20,
                                         ),
                                       ),
-
                                       const SizedBox(width: 12),
-
                                       Expanded(
                                         child: Text(
-                                          message['content'] ?? "",
-                                          style: const TextStyle(
+                                          message['content'] ?? '',
+                                          style:
+                                              const TextStyle(
                                             color: Colors.black87,
                                             fontSize: 16,
                                           ),
@@ -403,14 +423,18 @@ class _AiChatState extends State<AiChat> {
                             // ====================================
                             // LOADING
                             // ====================================
+
                             if (isLoading)
                               const Align(
-                                alignment: Alignment.centerLeft,
-
+                                alignment:
+                                    Alignment.centerLeft,
                                 child: Padding(
-                                  padding: EdgeInsets.only(top: 5, bottom: 15),
-
-                                  child: CircularProgressIndicator(
+                                  padding: EdgeInsets.only(
+                                    top: 5,
+                                    bottom: 15,
+                                  ),
+                                  child:
+                                      CircularProgressIndicator(
                                     color: Colors.blueAccent,
                                   ),
                                 ),
@@ -422,79 +446,95 @@ class _AiChatState extends State<AiChat> {
                       // ==========================================
                       // MESSAGE INPUT
                       // ==========================================
+
                       Container(
-                        padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-
+                        padding: const EdgeInsets.fromLTRB(
+                          10,
+                          8,
+                          10,
+                          10,
+                        ),
                         color: Colors.white,
-
                         child: Row(
                           children: [
                             // Text Field
                             Expanded(
                               child: TextFormField(
-                                controller: messageController,
-
+                                controller:
+                                    messageController,
                                 maxLines: 2,
-
                                 minLines: 1,
-
-                                decoration: InputDecoration(
-                                  hintText: "Type a message...",
-
-                                  hintStyle: const TextStyle(
-                                    color: Colors.blueAccent,
+                                decoration:
+                                    InputDecoration(
+                                  hintText:
+                                      'Type a message...',
+                                  hintStyle:
+                                      const TextStyle(
+                                    color:
+                                        Colors.blueAccent,
                                     fontSize: 15,
                                   ),
-
-                                  prefixIcon: const Icon(
-                                    Icons.emoji_emotions_outlined,
-                                    color: Colors.blueAccent,
+                                  prefixIcon:
+                                      const Icon(
+                                    Icons
+                                        .emoji_emotions_outlined,
+                                    color:
+                                        Colors.blueAccent,
                                     size: 25,
                                   ),
-
-                                  suffixIcon: const Icon(
+                                  suffixIcon:
+                                      const Icon(
                                     Icons.attach_file,
-                                    color: Colors.blueAccent,
+                                    color:
+                                        Colors.blueAccent,
                                     size: 25,
                                   ),
-
                                   filled: true,
-
-                                  fillColor: Colors.blue.shade50,
-
-                                  contentPadding: const EdgeInsets.symmetric(
+                                  fillColor:
+                                      Colors.blue.shade50,
+                                  contentPadding:
+                                      const EdgeInsets
+                                          .symmetric(
                                     horizontal: 10,
                                     vertical: 8,
                                   ),
-
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-
-                                    borderSide: const BorderSide(
-                                      color: Colors.blueAccent,
+                                  border:
+                                      OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius
+                                            .circular(15),
+                                    borderSide:
+                                        const BorderSide(
+                                      color:
+                                          Colors.blueAccent,
                                     ),
                                   ),
-
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-
+                                  enabledBorder:
+                                      OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius
+                                            .circular(15),
                                     borderSide: BorderSide(
-                                      color: Colors.blueAccent.withValues(
+                                      color: Colors
+                                          .blueAccent
+                                          .withValues(
                                         alpha: 0.5,
                                       ),
                                     ),
                                   ),
-
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-
-                                    borderSide: const BorderSide(
-                                      color: Colors.blueAccent,
+                                  focusedBorder:
+                                      OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius
+                                            .circular(15),
+                                    borderSide:
+                                        const BorderSide(
+                                      color:
+                                          Colors.blueAccent,
                                       width: 1.5,
                                     ),
                                   ),
                                 ),
-
                                 onFieldSubmitted: (_) {
                                   sendMessageToAI();
                                 },
@@ -505,14 +545,15 @@ class _AiChatState extends State<AiChat> {
 
                             // Send Button
                             Container(
-                              decoration: const BoxDecoration(
+                              decoration:
+                                  const BoxDecoration(
                                 color: Colors.blueAccent,
                                 shape: BoxShape.circle,
                               ),
-
                               child: IconButton(
-                                onPressed: isLoading ? null : sendMessageToAI,
-
+                                onPressed: isLoading
+                                    ? null
+                                    : sendMessageToAI,
                                 icon: const Icon(
                                   Icons.send,
                                   color: Colors.white,
@@ -534,3 +575,5 @@ class _AiChatState extends State<AiChat> {
     );
   }
 }
+
+
