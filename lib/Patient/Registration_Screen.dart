@@ -1,8 +1,10 @@
 
 
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -16,6 +18,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _obscurePassword = true;
   final TextEditingController _passwordController = TextEditingController();
  final _confirmPasswordController = TextEditingController();
+ final TextEditingController _nameController =TextEditingController();
+ final TextEditingController _emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,10 +57,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 fontSize: 18,
               ),),
              TextFormField(
-            
+            controller: _nameController,
             validator: (value){
               if(value==null ||value.trim().isEmpty){
-                return 'Please enter a valid email';
+                return 'Please enter your name';
               }
              return null;
             },
@@ -83,7 +87,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 fontSize: 18,
               ),),
              TextFormField(
-            
+            controller: _emailController,
             validator: (value){
               if(value==null ||value.trim().isEmpty){
                 return 'Please enter a valid email';
@@ -194,12 +198,49 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             )
         ),),
         SizedBox(height: 60),
-        ElevatedButton(onPressed: (){
-         if(_formKey.currentState!.validate()){
-            Navigator.push(context,
-              MaterialPageRoute(builder: (context)=> const login_screen()));
-         };
-        },
+        ElevatedButton(onPressed: ()async{
+        if(_formKey.currentState!.validate()){
+          try{
+            UserCredential userCredential=
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+            await FirebaseFirestore.instance
+            .collection('users')
+             .doc(userCredential.user!.uid)
+            .set({
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Registration successful!"),
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const login_screen(),
+          ),
+        );
+      } on FirebaseAuthException catch (e) {
+        print("Firebase Auth Error:${e.code}");
+        print("Firebase Auth Message: ${e.message}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Error: ${e.code} - ${e.message}",
+          ),
+          )
+        );
+
+
+          }
+        }
+        }, 
         
         style: ElevatedButton.styleFrom(
           elevation: 5,

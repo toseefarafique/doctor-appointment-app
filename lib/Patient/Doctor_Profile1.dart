@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'Appointment_Book1.dart';
 
 class Doctor_profile1 extends StatelessWidget {
-  const Doctor_profile1({super.key});
+   final Map<String, dynamic> doctor;
+
+ const Doctor_profile1({
+    
+    super.key,
+    required this.doctor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +54,8 @@ class Doctor_profile1 extends StatelessWidget {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/images/Doctor1.png',
+                  
+                     doctor['image'] ?? 'assets/images/Doctor1.png',
                       height: 20,
                       
                       fit: BoxFit.contain,
@@ -61,7 +68,7 @@ class Doctor_profile1 extends StatelessWidget {
         ),
        ),
       Padding(padding: EdgeInsets.only(left: 20,top: 10),
-       child:Text("Dr. Ayesha Khan",
+       child: Text(doctor['name'] ?? 'Doctor',
        style: TextStyle(
         color: Colors.black,
         fontWeight: FontWeight.bold,
@@ -69,7 +76,7 @@ class Doctor_profile1 extends StatelessWidget {
        ),)
            ),
       Padding(padding: EdgeInsets.only(left: 22),
-      child: Text("Cardiologist",
+      child: Text(doctor['specialization'] ?? 'Specialist',
       style: TextStyle(fontSize: 20,
       color: Colors.black,
       fontWeight: FontWeight.bold),),),
@@ -116,7 +123,7 @@ class Doctor_profile1 extends StatelessWidget {
             fontSize: 22,
           ),),
          Padding(padding: EdgeInsets.only(top: 10),
-          child:Text("Dr. Ayesha is an experienced cardiologist specializing in heart health and cardiovascular care. She provides personalized treatment and focuses on helping patients maintain a healthy heart.",
+          child:Text("Dr.Pasha is an experienced cardiologist specializing in heart health and cardiovascular care. She provides personalized treatment and focuses on helping patients maintain a healthy heart.",
           style: TextStyle(
             color: Colors.black,
             fontSize: 17,
@@ -138,7 +145,10 @@ class Doctor_profile1 extends StatelessWidget {
          Padding(padding: EdgeInsets.all(15),
           child:ElevatedButton(onPressed: (){
             Navigator.push(context,
-            MaterialPageRoute(builder: (context)=>const AppointmentBook1()));
+            MaterialPageRoute(builder: (context)=> AppointmentBook1(
+              doctor: doctor,
+              
+            )));
           },
           style: ElevatedButton.styleFrom(
            backgroundColor: Colors.blueAccent,

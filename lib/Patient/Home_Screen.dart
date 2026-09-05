@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart';
 import 'Chat_Screen.dart';
 import 'Doctor_Profile1.dart';
 import 'My_Appointments.dart';
@@ -13,7 +16,28 @@ class homePage extends StatefulWidget {
 }
 
 class _homePageState extends State<homePage> {
+  String userName ="";
   @override
+  void initState(){
+    super.initState();
+    getUserName();
+  }
+  Future<void> getUserName() async{
+     User? user= FirebaseAuth.instance.currentUser;
+
+    if(user != null){
+      DocumentSnapshot userData = await FirebaseFirestore.instance
+      .collection('patients')
+      .doc('user.uid')
+      .get();
+     if(userData.exists){
+      setState(() {
+        userName = userData['name'];
+      });
+     } 
+    } 
+  }
+ @override 
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -38,7 +62,7 @@ class _homePageState extends State<homePage> {
                   child:Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Hi, Sana",style: TextStyle(
+                Text("Hi, $userName",style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -311,375 +335,548 @@ class _homePageState extends State<homePage> {
           fontWeight: FontWeight.bold,
           fontSize: 25),),
         ),),
-      Padding(padding: EdgeInsets.only(left: 20,right: 20),
-      child:Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(15),
-  decoration: BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(15),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.15),
-        blurRadius: 8,
-        spreadRadius: 2,
-      ),
-    ],
-  ),
-  child: Row(
-    children: [
-      Container(
-        height: 90,
-        width: 90,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE3EDFF),
-          borderRadius: BorderRadius.circular(12),
+      
+      StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('doctors')
+      .snapshots(),
+  builder: (context, snapshot) {
+
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: CircularProgressIndicator(),
         ),
-        child: Image.asset(
-          'assets/images/Doctor1.png',
-          fit: BoxFit.contain,
+      );
+    }
+
+    if (snapshot.hasError) {
+      return const Center(
+        child: Text("Unable to load doctors"),
+      );
+    }
+
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Text("No doctors available"),
         ),
-      ),
+      );
+    }
 
-      const SizedBox(width: 15),
+    final doctors = snapshot.data!.docs;
 
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Dr. Ayesha Khan",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return Column(
+      children: doctors.map((doctor) {
 
-            const SizedBox(height: 5),
+        final data = doctor.data() as Map<String, dynamic>;
 
-            const Text(
-              "Cardiologist",
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontSize: 14,
-              ),
-            ),
+        final String name = data['name'] ?? 'Doctor';
+        final String specialization =
+            data['specialization'] ?? 'Specialist';
+        final String image =
+            data['image'] ?? '';
 
-            const SizedBox(height: 7),
-
-            const Row(
-              children: [
-                Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 18,
+        return Padding(
+          padding: const EdgeInsets.only(
+            left: 15,
+            right: 15,
+            bottom: 15,
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  blurRadius: 8,
+                  spreadRadius: 2,
                 ),
-                SizedBox(width: 4),
-                Text(
-                  "4.8",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+              ],
+            ),
+            child: Row(
+              children: [
+
+                Container(
+                  height: 90,
+                  width: 90,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3EDFF),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: image.isNotEmpty
+                      ? Image.asset(
+                          image,
+                          fit: BoxFit.contain,
+                          errorBuilder:
+                              (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Colors.blueAccent,
+                            );
+                          },
+                        )
+                      : const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Colors.blueAccent,
+                        ),
+                ),
+
+                const SizedBox(width: 15),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      Text(
+                        specialization,
+                        style: const TextStyle(
+                          color: Colors.blueAccent,
+                          fontSize: 14,
+                        ),
+                      ),
+
+                      const SizedBox(height: 7),
+
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            "4.5",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text(
+                            "Available",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 12),
-                Text(
-                  "5 Years Exp.",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
+
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Doctor_profile1(doctor: data),
+                      ),
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.blueAccent,
+                    size: 18,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }).toList(),
+    );
+  },
+),
+//       child:Container(
+//   width: double.infinity,
+//   padding: const EdgeInsets.all(15),
+//   decoration: BoxDecoration(
+//     color: Colors.white,
+//     borderRadius: BorderRadius.circular(15),
+//     boxShadow: [
+//       BoxShadow(
+//         color: Colors.grey.withOpacity(0.15),
+//         blurRadius: 8,
+//         spreadRadius: 2,
+//       ),
+//     ],
+//   ),
+//   child: Row(
+//     children: [
+//       Container(
+//         height: 90,
+//         width: 90,
+//         decoration: BoxDecoration(
+//           color: const Color(0xFFE3EDFF),
+//           borderRadius: BorderRadius.circular(12),
+//         ),
+//         child: Image.asset(
+//           'assets/images/Doctor1.png',
+//           fit: BoxFit.contain,
+//         ),
+//       ),
 
-   IconButton(onPressed: (){
-    Navigator.push(context,
-     MaterialPageRoute(builder: (context)=> const Doctor_profile1()));
-   },
-    icon: Icon(Icons.arrow_forward_ios,
-    color: Colors.blueAccent,
-    size: 18,))
-    ],
-  ),
-),  
-         ),
-         Padding(padding: EdgeInsets.all(15),
-         child:Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(15),
-  decoration: BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(15),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.15),
-        blurRadius: 8,
-        spreadRadius: 2,
-      ),
-    ],
-  ),
-  child: Row(
-    children: [
-      Container(
-        height: 90,
-        width: 90,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE3EDFF),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Image.asset(
-          'assets/images/Doctor2.png',
-          fit: BoxFit.contain,
-        ),
-      ),
+//       const SizedBox(width: 15),
 
-      const SizedBox(width: 15),
+//       Expanded(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text(
+//               "Dr. Ayesha Khan",
+//               style: TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
 
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Dr. Ahmed Hussain",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+//             const SizedBox(height: 5),
 
-            const SizedBox(height: 5),
+//             const Text(
+//               "Cardiologist",
+//               style: TextStyle(
+//                 color: Colors.blueAccent,
+//                 fontSize: 14,
+//               ),
+//             ),
 
-            const Text(
-              "Dermatologist",
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontSize: 14,
-              ),
-            ),
+//             const SizedBox(height: 7),
 
-            const SizedBox(height: 7),
+//             const Row(
+//               children: [
+//                 Icon(
+//                   Icons.star,
+//                   color: Colors.amber,
+//                   size: 18,
+//                 ),
+//                 SizedBox(width: 4),
+//                 Text(
+//                   "4.8",
+//                   style: TextStyle(
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(width: 12),
+//                 Text(
+//                   "5 Years Exp.",
+//                   style: TextStyle(
+//                     color: Colors.grey,
+//                     fontSize: 13,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
 
-            const Row(
-              children: [
-                Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 18,
-                ),
-                SizedBox(width: 4),
-                Text(
-                  "3.8",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  "8 Years Exp.",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+//    IconButton(onPressed: (){
+//     Navigator.push(context,
+//      MaterialPageRoute(builder: (context)=> const Doctor_profile1()));
+//    },
+//     icon: Icon(Icons.arrow_forward_ios,
+//     color: Colors.blueAccent,
+//     size: 18,))
+//     ],
+//   ),
+// ),  
+//          ),
+//          Padding(padding: EdgeInsets.all(15),
+//          child:Container(
+//   width: double.infinity,
+//   padding: const EdgeInsets.all(15),
+//   decoration: BoxDecoration(
+//     color: Colors.white,
+//     borderRadius: BorderRadius.circular(15),
+//     boxShadow: [
+//       BoxShadow(
+//         color: Colors.grey.withOpacity(0.15),
+//         blurRadius: 8,
+//         spreadRadius: 2,
+//       ),
+//     ],
+//   ),
+//   child: Row(
+//     children: [
+//       Container(
+//         height: 90,
+//         width: 90,
+//         decoration: BoxDecoration(
+//           color: const Color(0xFFE3EDFF),
+//           borderRadius: BorderRadius.circular(12),
+//         ),
+//         child: Image.asset(
+//           'assets/images/Doctor2.png',
+//           fit: BoxFit.contain,
+//         ),
+//       ),
 
-     IconButton(onPressed: (){},
-      icon: Icon(Icons.arrow_forward_ios,
-    color: Colors.blueAccent,
-    size: 18,))
-    ],
-  ),
-),),
-Padding(padding: EdgeInsetsGeometry.all(15),
-child:Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(15),
-  decoration: BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(15),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.15),
-        blurRadius: 8,
-        spreadRadius: 2,
-      ),
-    ],
-  ),
-  child: Row(
-    children: [
-      Container(
-        height: 90,
-        width: 90,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE3EDFF),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Image.asset(
-          'assets/images/Doctor3.png',
-          fit: BoxFit.contain,
-        ),
-      ),
+//       const SizedBox(width: 15),
 
-      const SizedBox(width: 15),
+//       Expanded(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text(
+//               "Dr. Ahmed Hussain",
+//               style: TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
 
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Dr. Jiya Khan",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+//             const SizedBox(height: 5),
 
-            const SizedBox(height: 5),
+//             const Text(
+//               "Dermatologist",
+//               style: TextStyle(
+//                 color: Colors.blueAccent,
+//                 fontSize: 14,
+//               ),
+//             ),
 
-            const Text(
-              "Neurologist",
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontSize: 14,
-              ),
-            ),
+//             const SizedBox(height: 7),
 
-            const SizedBox(height: 7),
+//             const Row(
+//               children: [
+//                 Icon(
+//                   Icons.star,
+//                   color: Colors.amber,
+//                   size: 18,
+//                 ),
+//                 SizedBox(width: 4),
+//                 Text(
+//                   "3.8",
+//                   style: TextStyle(
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(width: 12),
+//                 Text(
+//                   "8 Years Exp.",
+//                   style: TextStyle(
+//                     color: Colors.grey,
+//                     fontSize: 13,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
 
-            const Row(
-              children: [
-                Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 18,
-                ),
-                SizedBox(width: 4),
-                Text(
-                  "4.6",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  "4 Years Exp.",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+//      IconButton(onPressed: (){},
+//       icon: Icon(Icons.arrow_forward_ios,
+//     color: Colors.blueAccent,
+//     size: 18,))
+//     ],
+//   ),
+// ),),
+// Padding(padding: EdgeInsetsGeometry.all(15),
+// child:Container(
+//   width: double.infinity,
+//   padding: const EdgeInsets.all(15),
+//   decoration: BoxDecoration(
+//     color: Colors.white,
+//     borderRadius: BorderRadius.circular(15),
+//     boxShadow: [
+//       BoxShadow(
+//         color: Colors.grey.withOpacity(0.15),
+//         blurRadius: 8,
+//         spreadRadius: 2,
+//       ),
+//     ],
+//   ),
+//   child: Row(
+//     children: [
+//       Container(
+//         height: 90,
+//         width: 90,
+//         decoration: BoxDecoration(
+//           color: const Color(0xFFE3EDFF),
+//           borderRadius: BorderRadius.circular(12),
+//         ),
+//         child: Image.asset(
+//           'assets/images/Doctor3.png',
+//           fit: BoxFit.contain,
+//         ),
+//       ),
 
-      IconButton(onPressed: (){},
-      icon: Icon(Icons.arrow_forward_ios,
-    color: Colors.blueAccent,
-    size: 18,))
-    ],
-  ),
-),),
-Padding(padding: EdgeInsets.all(15),
-child: Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(15),
-  decoration: BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(15),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.15),
-        blurRadius: 8,
-        spreadRadius: 2,
-      ),
-    ],
-  ),
-  child: Row(
-    children: [
-      Container(
-        height: 90,
-        width: 90,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE3EDFF),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Image.asset(
-          'assets/images/Doctor4.png',
-          fit: BoxFit.contain,
-        ),
-      ),
+//       const SizedBox(width: 15),
 
-      const SizedBox(width: 15),
+//       Expanded(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text(
+//               "Dr. Jiya Khan",
+//               style: TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
 
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Dr. Muhammad Umer",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+//             const SizedBox(height: 5),
 
-            const SizedBox(height: 5),
+//             const Text(
+//               "Neurologist",
+//               style: TextStyle(
+//                 color: Colors.blueAccent,
+//                 fontSize: 14,
+//               ),
+//             ),
 
-            const Text(
-              "Eye Spacialists",
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontSize: 14,
-              ),
-            ),
+//             const SizedBox(height: 7),
 
-            const SizedBox(height: 7),
+//             const Row(
+//               children: [
+//                 Icon(
+//                   Icons.star,
+//                   color: Colors.amber,
+//                   size: 18,
+//                 ),
+//                 SizedBox(width: 4),
+//                 Text(
+//                   "4.6",
+//                   style: TextStyle(
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(width: 12),
+//                 Text(
+//                   "4 Years Exp.",
+//                   style: TextStyle(
+//                     color: Colors.grey,
+//                     fontSize: 13,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
 
-            const Row(
-              children: [
-                Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 18,
-                ),
-                SizedBox(width: 4),
-                Text(
-                  "4.2",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  "2 Years Exp.",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+//       IconButton(onPressed: (){},
+//       icon: Icon(Icons.arrow_forward_ios,
+//     color: Colors.blueAccent,
+//     size: 18,))
+//     ],
+//   ),
+// ),),
+// Padding(padding: EdgeInsets.all(15),
+// child: Container(
+//   width: double.infinity,
+//   padding: const EdgeInsets.all(15),
+//   decoration: BoxDecoration(
+//     color: Colors.white,
+//     borderRadius: BorderRadius.circular(15),
+//     boxShadow: [
+//       BoxShadow(
+//         color: Colors.grey.withOpacity(0.15),
+//         blurRadius: 8,
+//         spreadRadius: 2,
+//       ),
+//     ],
+//   ),
+//   child: Row(
+//     children: [
+//       Container(
+//         height: 90,
+//         width: 90,
+//         decoration: BoxDecoration(
+//           color: const Color(0xFFE3EDFF),
+//           borderRadius: BorderRadius.circular(12),
+//         ),
+//         child: Image.asset(
+//           'assets/images/Doctor4.png',
+//           fit: BoxFit.contain,
+//         ),
+//       ),
 
-      IconButton(onPressed: (){},
-      icon: Icon(Icons.arrow_forward_ios,
-    color: Colors.blueAccent,
-    size: 18,))
-    ],
-  ),
-),),
-          ],
+//       const SizedBox(width: 15),
+
+//       Expanded(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text(
+//               "Dr. Muhammad Umer",
+//               style: TextStyle(
+//                 fontSize: 18,
+//                 fontWeight: FontWeight.bold,
+//               ),
+//             ),
+
+//             const SizedBox(height: 5),
+
+//             const Text(
+//               "Eye Spacialists",
+//               style: TextStyle(
+//                 color: Colors.blueAccent,
+//                 fontSize: 14,
+//               ),
+//             ),
+
+//             const SizedBox(height: 7),
+
+//             const Row(
+//               children: [
+//                 Icon(
+//                   Icons.star,
+//                   color: Colors.amber,
+//                   size: 18,
+//                 ),
+//                 SizedBox(width: 4),
+//                 Text(
+//                   "4.2",
+//                   style: TextStyle(
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 SizedBox(width: 12),
+//                 Text(
+//                   "2 Years Exp.",
+//                   style: TextStyle(
+//                     color: Colors.grey,
+//                     fontSize: 13,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+
+//       IconButton(onPressed: (){},
+//       icon: Icon(Icons.arrow_forward_ios,
+//     color: Colors.blueAccent,
+//     size: 18,))
+//     ],
+//   ),
+// ),),
+           ],
         )
       ),
      bottomNavigationBar: BottomNavigationBar(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Home_Screen.dart';
 import 'Registration_Screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class login_screen extends StatefulWidget {
@@ -13,6 +14,8 @@ class login_screen extends StatefulWidget {
 class _login_screenState extends State<login_screen> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +66,7 @@ return Scaffold(
         
          Padding(padding: EdgeInsets.only(left: 18,right: 18),
           child:TextFormField(
+            controller: _emailController,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value){
               if(value==null ||value.trim().isEmpty){
@@ -97,6 +101,7 @@ return Scaffold(
        Padding(padding: EdgeInsets.only(left: 18,right: 18),
 
         child:TextFormField(
+          controller: _passwordController,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: (value) {
             if(value==null || value.trim().isEmpty){
@@ -143,12 +148,33 @@ return Scaffold(
         ),
       Padding(padding: EdgeInsets.all(17),
        child: Align(alignment: AlignmentGeometry.center,
-        child: ElevatedButton(onPressed: (){
-          if(_formKey.currentState!.validate()){
-            Navigator.push(context,
-            MaterialPageRoute(builder: (context)=> const homePage()));
-          }
-        },
+        child:ElevatedButton(
+           onPressed: () async {
+  if (_formKey.currentState!.validate()) {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const homePage(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      debugPrint("Firebase Auth Error Code: ${e.code}");
+  debugPrint("Firebase Auth Error Message: ${e.message}");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("${e.code}: ${e.message}"),
+        ),
+      );
+    }
+  }
+},
         style: ElevatedButton.styleFrom(
           backgroundColor:Colors.blueAccent,
           foregroundColor: Colors.white,
