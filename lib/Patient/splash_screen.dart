@@ -63,18 +63,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 // APP LOGO
                 // =========================
                 Image.asset(
-                  'assets/images/Medi_Book.png',
+                  'assets/doctors/Medi_Book.png',
                   width: 300,
                   height: 300,
                   fit: BoxFit.contain,
-
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.medical_services,
-                      color: Colors.blueAccent,
-                      size: 150,
-                    );
-                  },
                 ),
 
                 const SizedBox(height: 60),

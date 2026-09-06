@@ -280,7 +280,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             // Medical Icon
                             Center(
                               child: Image.asset(
-                                'assets/images/medical_icon.png',
+                                'assets/images/Medi_Book.png',
 
                                 height: 75,
                                 width: 75,

@@ -309,7 +309,7 @@ class _login_screenState extends State<login_screen> {
                       ),
 
                       child: Image.asset(
-                        'assets/images/medical_icon.png',
+                        'assets/images/Medi_Book.png',
                         height: 80,
                         width: 80,
                         fit: BoxFit.contain,
