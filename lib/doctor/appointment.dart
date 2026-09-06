@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'appointment_details.dart';
+import 'doctor_dashboard.dart';
 
 class DoctorAppointments extends StatefulWidget {
   final String? doctorName;
@@ -471,34 +472,37 @@ class _DoctorAppointmentsState extends State<DoctorAppointments> {
         // ======================================================
 
         appBar: AppBar(
-          backgroundColor: primaryBlue,
+  backgroundColor: primaryBlue,
+  foregroundColor: Colors.white,
+  elevation: 0,
 
-          foregroundColor: Colors.white,
+  leading: IconButton(
+    icon: const Icon(
+      Icons.arrow_back,
+      color: Colors.white,
+    ),
 
-          elevation: 0,
-
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-
-          title: const Text(
-            'Appointments',
-
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          centerTitle: true,
+    onPressed: () {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const DoctorDashboard(),
         ),
+        (route) => false,
+      );
+    },
+  ),
+
+  title: const Text(
+    'Appointments',
+    style: TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+
+  centerTitle: true,
+),
 
         // ======================================================
         // BODY
