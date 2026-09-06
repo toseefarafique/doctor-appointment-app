@@ -65,19 +65,27 @@ class AppointmentDetails extends StatelessWidget {
 
       if (!context.mounted) return;
 
-      Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Appointment Cancelled"),
-        ),
-      );
+      // Return to MyAppointments and tell it that cancellation was successful
+      Navigator.pop(context, true);
     } catch (e) {
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Failed to cancel appointment: $e"),
+          content: Text(
+            "Failed to cancel appointment: $e",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -288,8 +296,7 @@ class AppointmentDetails extends StatelessWidget {
                                             "No",
                                             style: TextStyle(
                                               color: Colors.blueAccent,
-                                              fontWeight:
-                                              FontWeight.bold,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
@@ -302,8 +309,7 @@ class AppointmentDetails extends StatelessWidget {
                                             "Yes",
                                             style: TextStyle(
                                               color: Colors.red,
-                                              fontWeight:
-                                              FontWeight.bold,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
@@ -318,8 +324,7 @@ class AppointmentDetails extends StatelessWidget {
                                   width: 2,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                  BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
                               child: const Text(

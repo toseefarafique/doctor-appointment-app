@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class profile extends StatefulWidget {
   const profile({super.key});
@@ -8,6 +10,44 @@ class profile extends StatefulWidget {
 }
 
 class _profileState extends State<profile> {
+  String patientName = "Patient";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPatientName();
+  }
+
+  // ============================================================
+  // LOAD LOGGED-IN PATIENT NAME
+  // ============================================================
+
+  Future<void> _loadPatientName() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) return;
+
+      final query = await FirebaseFirestore.instance
+          .collection('patients')
+          .where('email', isEqualTo: user.email)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        final data = query.docs.first.data();
+
+        if (mounted) {
+          setState(() {
+            patientName = data['name'] ?? "Patient";
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error loading patient name: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,12 +91,29 @@ class _profileState extends State<profile> {
                   ),
 
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 30, 25, 20),
+                    padding: const EdgeInsets.fromLTRB(15, 30, 25, 20),
 
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
+                        // ==================================================
+                        // BACK BUTTON
+                        // ==================================================
+
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+
+                        const SizedBox(width: 5),
+
                         // Header Text
                         Expanded(
                           child: Column(
@@ -174,19 +231,19 @@ class _profileState extends State<profile> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
 
-                            children: const [
+                            children: [
                               Text(
-                                "Sana Khan",
-                                style: TextStyle(
+                                patientName,
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24,
                                 ),
                               ),
 
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
 
-                              Text(
+                              const Text(
                                 "Patient",
                                 style: TextStyle(
                                   color: Colors.black87,
@@ -195,9 +252,9 @@ class _profileState extends State<profile> {
                                 ),
                               ),
 
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
 
-                              Text(
+                              const Text(
                                 "Taking Care of yourself",
                                 style: TextStyle(
                                   color: Colors.black54,
