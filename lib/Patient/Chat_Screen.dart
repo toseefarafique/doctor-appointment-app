@@ -1,10 +1,8 @@
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-import 'api_config.dart';
+import 'ip_config.dart';
 
 class AiChat extends StatefulWidget {
   const AiChat({super.key});
