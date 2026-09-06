@@ -14,11 +14,7 @@ class MyAppointments extends StatefulWidget {
 class _MyAppointmentsState extends State<MyAppointments> {
   int selectedTab = 0;
 
-  // ============================================================
-  // GET CURRENT PATIENT APPOINTMENTS
-  // ============================================================
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getAppointments() {
+  Stream<QuerySnapshot> getAppointments() {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
@@ -27,43 +23,30 @@ class _MyAppointmentsState extends State<MyAppointments> {
 
     return FirebaseFirestore.instance
         .collection('appointments')
-        .where(
-      'patientId',
-      isEqualTo: user.uid,
-    )
+        .where('patientId', isEqualTo: user.uid)
         .snapshots();
   }
 
-  // ============================================================
-  // FORMAT DATE
-  // ============================================================
-
   String formatDate(DateTime date) {
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
 
-    return "${date.day} ${months[date.month - 1]} ${date.year}";
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
-  // ============================================================
-  // GET FIRESTORE DATE
-  // ============================================================
-
-  DateTime getAppointmentDate(
-      Map<String, dynamic> data,
-      ) {
+  DateTime getAppointmentDate(Map<String, dynamic> data) {
     final date = data['date'];
 
     if (date is Timestamp) {
@@ -77,713 +60,496 @@ class _MyAppointmentsState extends State<MyAppointments> {
     return DateTime.now();
   }
 
-  // ============================================================
-  // UPCOMING
-  // ============================================================
-
-  bool isUpcoming(
-      Map<String, dynamic> data,
-      ) {
-    final status =
-    (data['status'] ?? 'Pending')
-        .toString()
-        .toLowerCase();
+  bool isUpcoming(Map<String, dynamic> data) {
+    final status = data['status']?.toString().toLowerCase() ?? '';
 
     return status != 'completed' &&
         status != 'cancelled' &&
         status != 'rejected';
   }
 
-  // ============================================================
-  // PAST
-  // ============================================================
-
-  bool isPast(
-      Map<String, dynamic> data,
-      ) {
-    final status =
-    (data['status'] ?? 'Pending')
-        .toString()
-        .toLowerCase();
+  bool isPast(Map<String, dynamic> data) {
+    final status = data['status']?.toString().toLowerCase() ?? '';
 
     return status == 'completed' ||
         status == 'cancelled' ||
         status == 'rejected';
   }
 
-  // ============================================================
-  // OPEN DETAILS
-  // ============================================================
+  // ---------------------------------------------------------
+  // GET DOCTOR IMAGE USING FIRESTORE DOCTOR ID
+  // ---------------------------------------------------------
+  String getDoctorImage(Map<String, dynamic> data) {
+    final doctorId = data['doctorId']?.toString() ?? '';
+
+    switch (doctorId) {
+    // Ayesha Khan
+      case 'zOJ2C6NpTgdZ982DI9MIYolqmdK2':
+        return 'assets/images/Doctor1.png';
+
+    // Ahmer Malik
+      case 'OCyIqBfiA3UYeYQTz9wGrjrFBIt2':
+        return 'assets/images/Doctor2.png';
+
+    // Sara Khan
+      case 'ErGXk9aKdjQbVZhMGY6gxMlm2eS2':
+        return 'assets/images/Doctor3.png';
+
+    // Aliyar Pasha
+      case 'aTdxLOoY2Mes3RnwzTWMh3yiT5P2':
+        return 'assets/images/Doctor4.png';
+
+    // Default
+      default:
+        return 'assets/images/Doctor1.png';
+    }
+  }
 
   void openAppointmentDetails(
+      BuildContext context,
       String appointmentId,
       Map<String, dynamic> data,
       ) {
-    final appointmentDate =
-    getAppointmentDate(data);
+    final appointmentDate = getAppointmentDate(data);
 
     Navigator.push(
       context,
-
       MaterialPageRoute(
-        builder: (context) =>
-            AppointmentDetails(
-              appointmentId: appointmentId,
-
-              doctor:
-              data['doctor']?.toString() ??
-                  'Dr. Ayesha Khan',
-
-              specialization:
-              data['specialization']
-                  ?.toString() ??
-                  'Cardiologist',
-
-              date: appointmentDate,
-
-              time:
-              data['time']?.toString() ??
-                  'Not specified',
-
-              reason:
-              data['reason']?.toString() ??
-                  'Regular Checkup',
-
-              status:
-              data['status']?.toString() ??
-                  'Pending',
-            ),
+        builder: (context) => AppointmentDetails(
+          appointmentId: appointmentId,
+          doctor: data['doctor']?.toString() ?? 'Ayesha Khan',
+          specialization:
+          data['specialization']?.toString() ?? 'Cardiologist',
+          date: appointmentDate,
+          time: data['time']?.toString() ?? 'Not specified',
+          reason: data['reason']?.toString() ?? 'Regular Checkup',
+          status: data['status']?.toString() ?? 'Pending',
+        ),
       ),
     );
   }
-
-  // ============================================================
-  // BUILD
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-
+      backgroundColor: Colors.grey[100],
       body: Center(
         child: Container(
           width: 600,
           height: 1100,
-
-          clipBehavior: Clip.hardEdge,
-
           decoration: BoxDecoration(
             color: Colors.white,
-
-            borderRadius:
-            BorderRadius.circular(25),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black
-                    .withValues(alpha: 0.15),
-
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
+            borderRadius: BorderRadius.circular(20),
           ),
-
+          clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
-              // ==================================================
+              // ---------------------------------------------------------
               // APP BAR
-              // ==================================================
-
+              // ---------------------------------------------------------
               Container(
-                height: 70,
-
-                decoration:
-                const BoxDecoration(
-                  color: Colors.blueAccent,
-                ),
-
-                child: SafeArea(
-                  bottom: false,
-
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(
-                            context,
-                          );
-                        },
-
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-
-                      const SizedBox(width: 5),
-
-                      const Text(
-                        "My Appointments",
-
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight:
-                          FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ==================================================
-              // CONTENT
-              // ==================================================
-
-              Expanded(
-                child:
-                SingleChildScrollView(
-                  padding:
-                  const EdgeInsets.all(10),
-
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 5),
-
-                      // ==================================================
-                      // TABS
-                      // ==================================================
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child:
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedTab =
-                                  0;
-                                });
-                              },
-
-                              child:
-                              Container(
-                                height: 45,
-
-                                decoration:
-                                BoxDecoration(
-                                  color:
-                                  selectedTab ==
-                                      0
-                                      ? Colors
-                                      .blueAccent
-                                      : Colors
-                                      .white,
-
-                                  borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                    10,
-                                  ),
-
-                                  border:
-                                  Border.all(
-                                    color: Colors
-                                        .blueAccent,
-                                  ),
-                                ),
-
-                                child: Center(
-                                  child: Text(
-                                    "Upcoming",
-
-                                    style:
-                                    TextStyle(
-                                      color:
-                                      selectedTab ==
-                                          0
-                                          ? Colors
-                                          .white
-                                          : Colors
-                                          .blueAccent,
-
-                                      fontWeight:
-                                      FontWeight
-                                          .bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(
-                            width: 15,
-                          ),
-
-                          Expanded(
-                            child:
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedTab =
-                                  1;
-                                });
-                              },
-
-                              child:
-                              Container(
-                                height: 45,
-
-                                decoration:
-                                BoxDecoration(
-                                  color:
-                                  selectedTab ==
-                                      1
-                                      ? Colors
-                                      .blueAccent
-                                      : Colors
-                                      .white,
-
-                                  borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                    10,
-                                  ),
-
-                                  border:
-                                  Border.all(
-                                    color: Colors
-                                        .blueAccent,
-                                  ),
-                                ),
-
-                                child: Center(
-                                  child: Text(
-                                    "Past",
-
-                                    style:
-                                    TextStyle(
-                                      color:
-                                      selectedTab ==
-                                          1
-                                          ? Colors
-                                          .white
-                                          : Colors
-                                          .blueAccent,
-
-                                      fontWeight:
-                                      FontWeight
-                                          .bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(
-                        height: 20,
-                      ),
-
-                      // ==================================================
-                      // FIRESTORE
-                      // ==================================================
-
-                      StreamBuilder<
-                          QuerySnapshot<
-                              Map<String,
-                                  dynamic>>>(
-                        stream:
-                        getAppointments(),
-
-                        builder:
-                            (context, snapshot) {
-                          if (snapshot
-                              .connectionState ==
-                              ConnectionState
-                                  .waiting) {
-                            return const Padding(
-                              padding:
-                              EdgeInsets.all(
-                                40,
-                              ),
-
-                              child:
-                              CircularProgressIndicator(
-                                color: Colors
-                                    .blueAccent,
-                              ),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Padding(
-                              padding:
-                              const EdgeInsets
-                                  .all(
-                                30,
-                              ),
-
-                              child: Text(
-                                "Error loading appointments:\n${snapshot.error}",
-
-                                textAlign:
-                                TextAlign.center,
-
-                                style:
-                                const TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                            );
-                          }
-
-                          if (!snapshot.hasData ||
-                              snapshot
-                                  .data!
-                                  .docs
-                                  .isEmpty) {
-                            return _emptyAppointments();
-                          }
-
-                          final documents =
-                              snapshot.data!.docs;
-
-                          final filteredDocuments =
-                          documents.where(
-                                (doc) {
-                              final data =
-                              doc.data();
-
-                              if (selectedTab ==
-                                  0) {
-                                return isUpcoming(
-                                  data,
-                                );
-                              } else {
-                                return isPast(
-                                  data,
-                                );
-                              }
-                            },
-                          ).toList();
-
-                          if (filteredDocuments
-                              .isEmpty) {
-                            return _emptyAppointments();
-                          }
-
-                          return Column(
-                            children:
-                            filteredDocuments
-                                .map(
-                                  (doc) {
-                                return _appointmentCard(
-                                  doc.id,
-                                  doc.data(),
-                                );
-                              },
-                            ).toList(),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // APPOINTMENT CARD
-  // ============================================================
-
-  Widget _appointmentCard(
-      String appointmentId,
-      Map<String, dynamic> data,
-      ) {
-    final date =
-    getAppointmentDate(data);
-
-    final doctor =
-        data['doctor']?.toString() ??
-            'Dr. Ayesha Khan';
-
-    final specialization =
-        data['specialization']?.toString() ??
-            'Cardiologist';
-
-    final time =
-        data['time']?.toString() ??
-            'Not specified';
-
-    final status =
-        data['status']?.toString() ??
-            'Pending';
-
-    return Container(
-      width: double.infinity,
-
-      margin:
-      const EdgeInsets.only(bottom: 15),
-
-      padding:
-      const EdgeInsets.all(15),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-        BorderRadius.circular(15),
-
-        border: Border.all(
-          color: Colors.grey.shade300,
-        ),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black
-                .withValues(alpha: 0.05),
-
-            blurRadius: 5,
-          ),
-        ],
-      ),
-
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
-
-            children: [
-              // ==================================================
-              // DOCTOR IMAGE
-              // ==================================================
-
-              Container(
-                height: 90,
-                width: 90,
-
-                decoration:
-                BoxDecoration(
-                  color:
-                  const Color(0xFFE3EDFF),
-
-                  borderRadius:
-                  BorderRadius.circular(
-                    12,
-                  ),
-                ),
-
-                child: ClipRRect(
-                  borderRadius:
-                  BorderRadius.circular(
-                    12,
-                  ),
-
-                  child: Image.asset(
-                    'assets/images/Doctor1.png',
-
-                    fit: BoxFit.contain,
-
-                    errorBuilder:
-                        (context, error,
-                        stackTrace) {
-                      return const Icon(
-                        Icons.person,
-                        color:
-                        Colors.blueAccent,
-                        size: 55,
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 15),
-
-              // ==================================================
-              // INFORMATION
-              // ==================================================
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
-
+                height: 80,
+                color: Colors.blueAccent,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
                   children: [
-                    Text(
-                      doctor,
-
-                      style:
-                      const TextStyle(
-                        color: Colors.black,
-                        fontWeight:
-                        FontWeight.bold,
-                        fontSize: 18,
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
                       ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      specialization,
-
-                      style:
-                      const TextStyle(
-                        color: Colors.black87,
-                        fontWeight:
-                        FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    Text(
-                      formatDate(date),
-
-                      style:
-                      const TextStyle(
-                        color: Colors.black87,
-                        fontWeight:
-                        FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-
-                    const SizedBox(height: 3),
-
-                    Text(
-                      time,
-
-                      style:
-                      const TextStyle(
-                        color: Colors.black87,
-                        fontWeight:
-                        FontWeight.w600,
-                        fontSize: 14,
+                    const SizedBox(width: 10),
+                    const Text(
+                      'My Appointments',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
               ),
+
+              // ---------------------------------------------------------
+              // TABS
+              // ---------------------------------------------------------
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedTab = 0;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: selectedTab == 0
+                                ? Colors.blueAccent
+                                : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'Upcoming',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: selectedTab == 0
+                                  ? Colors.white
+                                  : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedTab = 1;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: selectedTab == 1
+                                ? Colors.blueAccent
+                                : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            'Past',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: selectedTab == 1
+                                  ? Colors.white
+                                  : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ---------------------------------------------------------
+              // APPOINTMENTS LIST
+              // ---------------------------------------------------------
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: getAppointments(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.blueAccent,
+                        ),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                      );
+                    }
+
+                    if (!snapshot.hasData ||
+                        snapshot.data!.docs.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.calendar_today_outlined,
+                              size: 70,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 15),
+                            Text(
+                              selectedTab == 0
+                                  ? 'No upcoming appointments'
+                                  : 'No past appointments',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final appointments =
+                    snapshot.data!.docs.where((doc) {
+                      final data =
+                      doc.data() as Map<String, dynamic>;
+
+                      return selectedTab == 0
+                          ? isUpcoming(data)
+                          : isPast(data);
+                    }).toList();
+
+                    if (appointments.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.calendar_today_outlined,
+                              size: 70,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 15),
+                            Text(
+                              selectedTab == 0
+                                  ? 'No upcoming appointments'
+                                  : 'No past appointments',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: appointments.length,
+                      itemBuilder: (context, index) {
+                        final doc = appointments[index];
+
+                        final data =
+                        doc.data() as Map<String, dynamic>;
+
+                        return _appointmentCard(
+                          context,
+                          doc.id,
+                          data,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
             ],
           ),
-
-          const SizedBox(height: 15),
-
-          // ==================================================
-          // BUTTON
-          // ==================================================
-
-          SizedBox(
-            width: double.infinity,
-            height: 42,
-
-            child: ElevatedButton(
-              onPressed: () {
-                openAppointmentDetails(
-                  appointmentId,
-                  data,
-                );
-              },
-
-              style:
-              ElevatedButton.styleFrom(
-                backgroundColor:
-                selectedTab == 0
-                    ? Colors.blueAccent
-                    .shade100
-                    : Colors.grey.shade200,
-
-                foregroundColor:
-                Colors.blueAccent,
-
-                elevation: 0,
-
-                shape:
-                RoundedRectangleBorder(
-                  borderRadius:
-                  BorderRadius.circular(
-                    10,
-                  ),
-                ),
-              ),
-
-              child: Text(
-                status,
-
-                style: TextStyle(
-                  color: selectedTab == 0
-                      ? Colors.blueAccent
-                      : Colors.grey.shade700,
-
-                  fontWeight:
-                  FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  // ============================================================
-  // EMPTY
-  // ============================================================
+  // ---------------------------------------------------------
+  // APPOINTMENT CARD
+  // ---------------------------------------------------------
+  Widget _appointmentCard(
+      BuildContext context,
+      String appointmentId,
+      Map<String, dynamic> data,
+      ) {
+    final doctor =
+        data['doctor']?.toString() ?? 'Ayesha Khan';
 
-  Widget _emptyAppointments() {
-    return Padding(
-      padding:
-      const EdgeInsets.only(
-        top: 60,
-        left: 20,
-        right: 20,
-      ),
+    final specialization =
+        data['specialization']?.toString() ?? 'Cardiologist';
 
-      child: Column(
-        children: [
-          Icon(
-            Icons.calendar_month_outlined,
+    final appointmentDate =
+    getAppointmentDate(data);
 
-            size: 80,
+    final time =
+        data['time']?.toString() ?? 'Not specified';
 
-            color: Colors.grey.shade400,
+    final status =
+        data['status']?.toString() ?? 'Pending';
+
+    // Get correct image from doctorId
+    final doctorImage = getDoctorImage(data);
+
+    return GestureDetector(
+      onTap: () {
+        openAppointmentDetails(
+          context,
+          appointmentId,
+          data,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 15),
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+          border: Border.all(
+            color: Colors.grey.shade200,
           ),
-
-          const SizedBox(height: 15),
-
-          Text(
-            selectedTab == 0
-                ? "No upcoming appointments"
-                : "No past appointments",
-
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight:
-              FontWeight.bold,
-              color: Colors.grey,
+        ),
+        child: Row(
+          children: [
+            // ---------------------------------------------------------
+            // DOCTOR IMAGE
+            // ---------------------------------------------------------
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Image.asset(
+                doctorImage,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.person,
+                    color: Colors.blueAccent,
+                    size: 55,
+                  );
+                },
+              ),
             ),
 
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(width: 15),
+
+            // ---------------------------------------------------------
+            // APPOINTMENT INFORMATION
+            // ---------------------------------------------------------
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    doctor,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Text(
+                    specialization,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 15,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        formatDate(appointmentDate),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        size: 15,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        time,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // ---------------------------------------------------------
+            // STATUS
+            // ---------------------------------------------------------
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: status.toLowerCase() == 'confirmed'
+                    ? Colors.green.shade50
+                    : status.toLowerCase() == 'completed'
+                    ? Colors.green.shade100
+                    : status.toLowerCase() == 'rejected'
+                    ? Colors.red.shade50
+                    : Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                status,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: status.toLowerCase() == 'confirmed'
+                      ? Colors.green
+                      : status.toLowerCase() == 'completed'
+                      ? Colors.green.shade700
+                      : status.toLowerCase() == 'rejected'
+                      ? Colors.red
+                      : Colors.orange,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-

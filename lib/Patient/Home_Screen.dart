@@ -38,10 +38,10 @@ class _homePageState extends State<homePage> {
       }
 
       final DocumentSnapshot<Map<String, dynamic>> patientDoc =
-          await FirebaseFirestore.instance
-              .collection('patients')
-              .doc(user.uid)
-              .get();
+      await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(user.uid)
+          .get();
 
       if (patientDoc.exists) {
         final data = patientDoc.data();
@@ -196,7 +196,7 @@ class _homePageState extends State<homePage> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                const Search_screen(),
+                                            const Search_screen(),
                                           ),
                                         );
                                       },
@@ -214,9 +214,9 @@ class _homePageState extends State<homePage> {
                                         fillColor: Colors.white,
 
                                         contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              vertical: 10,
-                                            ),
+                                        const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                        ),
 
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
@@ -272,7 +272,7 @@ class _homePageState extends State<homePage> {
 
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
 
                                     children: [
                                       const Text(
@@ -393,34 +393,33 @@ class _homePageState extends State<homePage> {
                       // SPECIALITIES
                       // =================================================
                       SizedBox(
-                        height: 110,
-
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-
+                        height: 115,
+                        child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _specialityCard(
+                                icon: Icons.favorite_border,
+                                title: "Cardiologist",
+                              ),
 
-                          children: [
-                            _specialityCard(
-                              icon: Icons.favorite_border,
-                              title: "Cardiologist",
-                            ),
+                              _specialityCard(
+                                icon: Icons.face_retouching_natural,
+                                title: "Dermatologist",
+                              ),
 
-                            _specialityCard(
-                              icon: Icons.face_retouching_natural,
-                              title: "Dermatologist",
-                            ),
+                              _specialityCard(
+                                icon: Icons.psychology,
+                                title: "Neurologist",
+                              ),
 
-                            _specialityCard(
-                              icon: Icons.psychology,
-                              title: "Neurologist",
-                            ),
-
-                            _specialityCard(
-                              icon: Icons.remove_red_eye,
-                              title: "Eye Specialist",
-                            ),
-                          ],
+                              _specialityCard(
+                                icon: Icons.remove_red_eye,
+                                title: "Eye Specialist",
+                              ),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -551,7 +550,9 @@ class _homePageState extends State<homePage> {
                     if (index == 2) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const AiChat()),
+                        MaterialPageRoute(
+                          builder: (context) => const AiChat(),
+                        ),
                       );
                     }
 
@@ -611,11 +612,13 @@ class _homePageState extends State<homePage> {
   // SPECIALITY CARD
   // ============================================================
 
-  Widget _specialityCard({required IconData icon, required String title}) {
+  Widget _specialityCard({
+    required IconData icon,
+    required String title,
+  }) {
     return Container(
-      width: 100,
-
-      margin: const EdgeInsets.only(right: 12),
+      width: 125,
+      height: 110,
 
       decoration: BoxDecoration(
         color: const Color(0xFFE3EDFF),
@@ -626,7 +629,11 @@ class _homePageState extends State<homePage> {
         mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
-          Icon(icon, color: Colors.blueAccent, size: 32),
+          Icon(
+            icon,
+            color: Colors.blueAccent,
+            size: 32,
+          ),
 
           const SizedBox(height: 7),
 
@@ -638,7 +645,10 @@ class _homePageState extends State<homePage> {
 
               textAlign: TextAlign.center,
 
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -746,7 +756,11 @@ class _homePageState extends State<homePage> {
 
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 17),
+                      const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 17,
+                      ),
 
                       const SizedBox(width: 3),
 
