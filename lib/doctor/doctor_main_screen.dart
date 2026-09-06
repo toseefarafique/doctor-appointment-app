@@ -1,11 +1,12 @@
 import 'package:doctor_appointment_app/doctor/schedule.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'doctor_dashboard.dart';
 import 'doctor_profile.dart';
 import 'appointment.dart';
 import '../admin/admin_dashboard.dart';
-
 
 class DoctorMainScreen extends StatefulWidget {
   const DoctorMainScreen({super.key});
@@ -17,20 +18,100 @@ class DoctorMainScreen extends StatefulWidget {
 class _DoctorMainScreenState extends State<DoctorMainScreen> {
   int selectedIndex = 0;
 
-  final List<Widget> screens = [
-    const DoctorDashboard(),
+  bool isLoadingDoctor = true;
 
-    // const Center(
-    //   child: Text("Appointments"),
-    // ),
-    const DoctorAppointments(),
+  String doctorId = "";
+  String doctorName = "";
+  String specialization = "";
 
-    const DoctorSchedule(),
+  @override
+  void initState() {
+    super.initState();
+    loadDoctorData();
+  }
 
-    const DoctorProfile(),
-    
+  // ============================================================
+  // LOAD LOGGED-IN DOCTOR FROM FIRESTORE
+  // ============================================================
 
-  ];
+  Future<void> loadDoctorData() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        setState(() {
+          isLoadingDoctor = false;
+        });
+        return;
+      }
+
+      final DocumentSnapshot<Map<String, dynamic>> doctorDoc =
+      await FirebaseFirestore.instance
+          .collection('doctors')
+          .doc(user.uid)
+          .get();
+
+      if (doctorDoc.exists) {
+        final data = doctorDoc.data();
+
+        if (data != null) {
+          setState(() {
+            doctorId = user.uid;
+
+            doctorName =
+                data['name']?.toString() ?? "Doctor";
+
+            specialization =
+                data['specialization']?.toString() ?? "";
+
+            isLoadingDoctor = false;
+          });
+        } else {
+          setState(() {
+            isLoadingDoctor = false;
+          });
+        }
+      } else {
+        setState(() {
+          isLoadingDoctor = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading doctor data: $e");
+
+      if (mounted) {
+        setState(() {
+          isLoadingDoctor = false;
+        });
+      }
+    }
+  }
+
+  // ============================================================
+  // DOCTOR SCREENS
+  // ============================================================
+
+  List<Widget> get screens {
+    return [
+      const DoctorDashboard(),
+
+      const DoctorAppointments(),
+
+      const DoctorSchedule(),
+
+      isLoadingDoctor
+          ? const Center(
+        child: CircularProgressIndicator(
+          color: Colors.blueAccent,
+        ),
+      )
+          : DoctorProfile(
+        doctorId: doctorId,
+        doctorName: doctorName,
+        specialization: specialization,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +133,10 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
           child: Scaffold(
             body: screens[selectedIndex],
 
+            // ======================================================
+            // BOTTOM NAVIGATION
+            // ======================================================
+
             bottomNavigationBar: SizedBox(
               height: 65,
 
@@ -60,30 +145,31 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
 
                 type: BottomNavigationBarType.fixed,
 
-                selectedItemColor:
-                Colors.blueAccent,
+                selectedItemColor: Colors.blueAccent,
 
                 unselectedItemColor: Colors.grey,
 
                 selectedFontSize: 11,
+
                 unselectedFontSize: 10,
 
                 showUnselectedLabels: true,
 
                 onTap: (index) {
-                if (index == 4) {
-                 Navigator.push(
-                 context,
-                  MaterialPageRoute(
-                 builder: (_) => const AdminDashboard(),
-                   ),
-                 );
-                 } else {
-                  setState(() {
-                   selectedIndex = index;
-                   });
+                  // ADMIN
+                  if (index == 4) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminDashboard(),
+                      ),
+                    );
+                  } else {
+                    setState(() {
+                      selectedIndex = index;
+                    });
                   }
-                 },
+                },
 
                 items: const [
                   BottomNavigationBarItem(
@@ -105,8 +191,6 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
                     icon: Icon(Icons.person),
                     label: "Profile",
                   ),
-
-
                 ],
               ),
             ),

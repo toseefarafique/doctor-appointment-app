@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class PatientDetails extends StatelessWidget {
   const PatientDetails({super.key});
 
-  static const Color primaryBlue = Color(0xFF1565C0);
+  static const Color primaryBlue = Colors.blueAccent;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF3F8),
+      backgroundColor: Colors.white,
 
       body: SafeArea(
         child: Center(
@@ -19,13 +19,14 @@ class PatientDetails extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
 
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F9FC),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
             ),
 
             child: Scaffold(
-              backgroundColor: const Color(0xFFF7F9FC),
+              backgroundColor: Colors.white,
 
+              // ================= APP BAR =================
               appBar: AppBar(
                 backgroundColor: primaryBlue,
                 foregroundColor: Colors.white,
@@ -47,13 +48,13 @@ class PatientDetails extends StatelessWidget {
                 ),
               ),
 
+              // ================= BODY =================
               body: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
 
                 child: Column(
                   children: [
-
-                    // PATIENT CARD
+                    // ================= PATIENT CARD =================
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(18),
@@ -62,9 +63,13 @@ class PatientDetails extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
 
+                        border: Border.all(
+                          color: Colors.blueAccent.withValues(alpha: 0.12),
+                        ),
+
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -73,14 +78,17 @@ class PatientDetails extends StatelessWidget {
 
                       child: Column(
                         children: [
-
+                          // Patient Icon
                           Container(
                             width: 80,
                             height: 80,
 
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFFE3F2FD),
+
+                              color: Colors.blueAccent.withValues(
+                                alpha: 0.10,
+                              ),
 
                               border: Border.all(
                                 color: primaryBlue,
@@ -97,16 +105,19 @@ class PatientDetails extends StatelessWidget {
 
                           const SizedBox(height: 10),
 
+                          // Patient Name
                           const Text(
                             "Ali Ahmed",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
 
                           const SizedBox(height: 5),
 
+                          // Age & Gender
                           const Text(
                             "25 Years, Male",
                             style: TextStyle(
@@ -117,6 +128,7 @@ class PatientDetails extends StatelessWidget {
 
                           const SizedBox(height: 5),
 
+                          // Phone
                           const Text(
                             "+92 312 1234567",
                             style: TextStyle(
@@ -130,7 +142,7 @@ class PatientDetails extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // PATIENT INFORMATION
+                    // ================= PATIENT INFORMATION =================
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -139,9 +151,13 @@ class PatientDetails extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
 
+                        border: Border.all(
+                          color: Colors.blueAccent.withValues(alpha: 0.12),
+                        ),
+
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -149,11 +165,9 @@ class PatientDetails extends StatelessWidget {
                       ),
 
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
-
                           const Text(
                             "Patient Information",
                             style: TextStyle(
@@ -200,7 +214,7 @@ class PatientDetails extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // NOTES
+                    // ================= NOTES =================
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -209,9 +223,13 @@ class PatientDetails extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
 
+                        border: Border.all(
+                          color: Colors.blueAccent.withValues(alpha: 0.12),
+                        ),
+
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -219,11 +237,9 @@ class PatientDetails extends StatelessWidget {
                       ),
 
                       child: const Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
-
                           Text(
                             "Notes",
                             style: TextStyle(
@@ -237,7 +253,7 @@ class PatientDetails extends StatelessWidget {
 
                           Text(
                             "Regular exercise and low salt "
-                            "diet recommended.",
+                                "diet recommended.",
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -259,20 +275,21 @@ class PatientDetails extends StatelessWidget {
     );
   }
 
+  // ================= INFO ROW =================
   static Widget infoRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+      IconData icon,
+      String title,
+      String value,
+      ) {
     return Row(
       children: [
-
+        // Icon Container
         Container(
           width: 38,
           height: 38,
 
           decoration: BoxDecoration(
-            color: const Color(0xFFE3F2FD),
+            color: Colors.blueAccent.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10),
           ),
 
@@ -285,15 +302,15 @@ class PatientDetails extends StatelessWidget {
 
         const SizedBox(width: 12),
 
+        // Information
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-
               Text(
                 title,
+
                 style: const TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
@@ -304,9 +321,11 @@ class PatientDetails extends StatelessWidget {
 
               Text(
                 value,
+
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],

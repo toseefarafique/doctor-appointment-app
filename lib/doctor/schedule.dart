@@ -8,7 +8,7 @@ class DoctorSchedule extends StatefulWidget {
 }
 
 class _DoctorScheduleState extends State<DoctorSchedule> {
-  static const Color primaryBlue = Color(0xFF1565C0);
+  static const Color primaryBlue = Colors.blueAccent;
 
   DateTime selectedDate = DateTime.now();
 
@@ -20,7 +20,7 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
       "status": "Confirmed",
     },
     {
-      "patient": "Asma  Noor",
+      "patient": "Asma Noor",
       "time": "11:00 AM",
       "type": "Follow-up",
       "status": "Upcoming",
@@ -33,14 +33,25 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
     },
   ];
 
-  
-
   Future<void> pickDate() async {
     final DateTime? date = await showDatePicker(
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blueAccent,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black87,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (date != null) {
@@ -50,12 +61,10 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF3F8),
+      backgroundColor: Colors.white,
 
       body: SafeArea(
         child: Center(
@@ -68,9 +77,7 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
               borderRadius: BorderRadius.circular(20),
 
               child: Scaffold(
-                backgroundColor: const Color(0xFFF7F9FC),
-
-                
+                backgroundColor: Colors.white,
 
                 appBar: AppBar(
                   backgroundColor: primaryBlue,
@@ -100,18 +107,15 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
                   ),
                 ),
 
-                
-
                 body: Padding(
                   padding: const EdgeInsets.all(20),
 
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    CrossAxisAlignment.start,
 
                     children: [
-
-                      
+                      // ================= SELECT DATE =================
 
                       const Text(
                         "Select Date",
@@ -119,6 +123,7 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
                       ),
 
@@ -137,29 +142,32 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
                           label: Text(
                             "${selectedDate.day}/"
-                            "${selectedDate.month}/"
-                            "${selectedDate.year}",
+                                "${selectedDate.month}/"
+                                "${selectedDate.year}",
 
                             style: const TextStyle(
                               color: Colors.black87,
+                              fontSize: 14,
                             ),
                           ),
 
-                          style:
-                              OutlinedButton.styleFrom(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+
                             padding:
-                                const EdgeInsets.symmetric(
+                            const EdgeInsets.symmetric(
                               vertical: 13,
                             ),
 
                             side: const BorderSide(
-                              color: Color(0xFFE0E0E0),
+                              color: Colors.blueAccent,
+                              width: 1,
                             ),
 
                             shape:
-                                RoundedRectangleBorder(
+                            RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.circular(10),
+                              BorderRadius.circular(10),
                             ),
                           ),
                         ),
@@ -167,25 +175,29 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
                       const SizedBox(height: 25),
 
-                      
+                      // ================= WORKING HOURS =================
 
                       Container(
                         width: double.infinity,
 
                         padding:
-                            const EdgeInsets.all(15),
+                        const EdgeInsets.all(15),
 
                         decoration: BoxDecoration(
-                          color:
-                              primaryBlue.withOpacity(.1),
+                          color: Colors.blueAccent
+                              .withValues(alpha: 0.10),
 
                           borderRadius:
-                              BorderRadius.circular(12),
+                          BorderRadius.circular(12),
+
+                          border: Border.all(
+                            color: Colors.blueAccent
+                                .withValues(alpha: 0.20),
+                          ),
                         ),
 
                         child: const Row(
                           children: [
-
                             Icon(
                               Icons.access_time,
                               color: primaryBlue,
@@ -196,12 +208,13 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
                             Expanded(
                               child: Text(
                                 "Working Hours: "
-                                "09:00 AM - 05:00 PM",
+                                    "09:00 AM - 05:00 PM",
 
                                 style: TextStyle(
                                   fontWeight:
-                                      FontWeight.bold,
+                                  FontWeight.bold,
                                   fontSize: 13,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ),
@@ -211,7 +224,7 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
                       const SizedBox(height: 25),
 
-                      
+                      // ================= APPOINTMENTS =================
 
                       const Text(
                         "Appointments",
@@ -219,39 +232,38 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
                       ),
 
                       const SizedBox(height: 15),
 
-                      
-
                       Expanded(
                         child: appointments.isEmpty
                             ? const Center(
-                                child: Text(
-                                  "No appointments for this date",
+                          child: Text(
+                            "No appointments for this date",
 
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              )
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                        )
                             : ListView.builder(
-                                itemCount:
-                                    appointments.length,
+                          itemCount:
+                          appointments.length,
 
-                                itemBuilder:
-                                    (context, index) {
-                                  final appointment =
-                                      appointments[index];
+                          itemBuilder:
+                              (context, index) {
+                            final appointment =
+                            appointments[index];
 
-                                  return appointmentCard(
-                                    appointment,
-                                  );
-                                },
-                              ),
+                            return appointmentCard(
+                              appointment,
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -264,33 +276,39 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
     );
   }
 
+  // ================= APPOINTMENT CARD =================
 
   Widget appointmentCard(
-    Map<String, String> appointment,
-  ) {
+      Map<String, String> appointment,
+      ) {
     final String status =
-        appointment["status"]!;
+    appointment["status"]!;
 
     final bool isConfirmed =
         status == "Confirmed";
 
     return Container(
       margin:
-          const EdgeInsets.only(bottom: 12),
+      const EdgeInsets.only(bottom: 12),
 
       padding:
-          const EdgeInsets.all(12),
+      const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
         borderRadius:
-            BorderRadius.circular(12),
+        BorderRadius.circular(12),
+
+        border: Border.all(
+          color: Colors.blueAccent
+              .withValues(alpha: 0.12),
+        ),
 
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.05),
+            Colors.black.withValues(alpha: 0.05),
 
             blurRadius: 6,
 
@@ -301,14 +319,13 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
       child: Row(
         children: [
-
-          
+          // ================= PATIENT ICON =================
 
           CircleAvatar(
             radius: 23,
 
             backgroundColor:
-                const Color(0xFFE3F2FD),
+            Colors.blueAccent.withValues(alpha: 0.10),
 
             child: const Icon(
               Icons.person,
@@ -321,23 +338,23 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
           const SizedBox(width: 12),
 
-      
+          // ================= PATIENT DETAILS =================
 
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              CrossAxisAlignment.start,
 
               children: [
-
                 Text(
                   appointment["patient"]!,
 
                   style: const TextStyle(
                     fontWeight:
-                        FontWeight.bold,
+                    FontWeight.bold,
 
                     fontSize: 14,
+                    color: Colors.black87,
                   ),
                 ),
 
@@ -345,7 +362,6 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
                 Row(
                   children: [
-
                     const Icon(
                       Icons.access_time,
                       size: 14,
@@ -357,8 +373,7 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
                     Text(
                       appointment["time"]!,
 
-                      style:
-                          const TextStyle(
+                      style: const TextStyle(
                         fontSize: 11,
                         color: Colors.grey,
                       ),
@@ -380,22 +395,22 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
             ),
           ),
 
-      
+          // ================= STATUS =================
 
           Container(
             padding:
-                const EdgeInsets.symmetric(
+            const EdgeInsets.symmetric(
               horizontal: 9,
               vertical: 5,
             ),
 
             decoration: BoxDecoration(
               color: isConfirmed
-                  ? const Color(0xFFE8F5E9)
-                  : const Color(0xFFFFF3E0),
+                  ? Colors.green.withValues(alpha: 0.10)
+                  : Colors.blueAccent.withValues(alpha: 0.10),
 
               borderRadius:
-                  BorderRadius.circular(20),
+              BorderRadius.circular(20),
             ),
 
             child: Text(
@@ -404,12 +419,12 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
               style: TextStyle(
                 color: isConfirmed
                     ? Colors.green
-                    : Colors.orange,
+                    : primaryBlue,
 
                 fontSize: 9,
 
                 fontWeight:
-                    FontWeight.bold,
+                FontWeight.bold,
               ),
             ),
           ),

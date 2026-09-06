@@ -8,7 +8,7 @@ class DoctorTimeSlots extends StatefulWidget {
 }
 
 class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
-  static const Color primaryBlue = Color(0xFF1565C0);
+  static const Color primaryBlue = Colors.blueAccent;
 
   DateTime selectedDate = DateTime.now();
 
@@ -35,13 +35,28 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
     },
   ];
 
-  // Select Date
+  // ================= SELECT DATE =================
+
   Future<void> pickDate() async {
     final DateTime? date = await showDatePicker(
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
+
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blueAccent,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black87,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (date != null) {
@@ -51,35 +66,68 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
     }
   }
 
-  // Add Slot
+  // ================= ADD SLOT =================
+
   void addSlots() {
-    TextEditingController controller = TextEditingController();
+    final TextEditingController controller =
+    TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Add Time Slot"),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(
-              hintText: "Example: 01:00 PM - 01:30 PM",
-              border: OutlineInputBorder(),
+          backgroundColor: Colors.white,
+
+          title: const Text(
+            "Add Time Slot",
+            style: TextStyle(
+              color: Colors.blueAccent,
+              fontWeight: FontWeight.bold,
             ),
           ),
+
+          content: TextField(
+            controller: controller,
+
+            decoration: InputDecoration(
+              hintText: "Example: 01:00 PM - 01:30 PM",
+
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: primaryBlue,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.blueAccent.withValues(alpha: 0.25),
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Cancel"),
+
+              child: const Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
+              ),
             ),
+
             ElevatedButton(
               onPressed: () {
-                if (controller.text.isNotEmpty) {
+                if (controller.text.trim().isNotEmpty) {
                   setState(() {
                     slots.add({
-                      "time": controller.text,
+                      "time": controller.text.trim(),
                       "available": true,
                     });
                   });
@@ -87,10 +135,16 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                   Navigator.pop(context);
                 }
               },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryBlue,
                 foregroundColor: Colors.white,
+
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
+
               child: const Text("Add"),
             ),
           ],
@@ -99,7 +153,8 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
     );
   }
 
-  // Delete Slot
+  // ================= DELETE SLOT =================
+
   void deleteSlot(int index) {
     setState(() {
       slots.removeAt(index);
@@ -109,7 +164,7 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF3F8),
+      backgroundColor: Colors.white,
 
       body: SafeArea(
         child: Center(
@@ -122,9 +177,10 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
               borderRadius: BorderRadius.circular(20),
 
               child: Scaffold(
-                backgroundColor: const Color(0xFFF7F9FC),
+                backgroundColor: Colors.white,
 
-              
+                // ================= APP BAR =================
+
                 appBar: AppBar(
                   backgroundColor: primaryBlue,
                   foregroundColor: Colors.white,
@@ -139,6 +195,7 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
 
                   title: const Text(
                     "Time Slots",
+
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -157,6 +214,7 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
 
                       label: const Text(
                         "Add Slot",
+
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -167,20 +225,25 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                   ],
                 ),
 
-              
+                // ================= BODY =================
+
                 body: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
 
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
 
-                      // Selected Date
+                    children: [
+                      // ================= SELECTED DATE =================
+
                       const Text(
                         "Selected Date",
+
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
                       ),
 
@@ -199,16 +262,17 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
 
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
+
+                            borderRadius:
+                            BorderRadius.circular(10),
 
                             border: Border.all(
-                              color: const Color(0xFFE0E0E0),
+                              color: Colors.blueAccent,
                             ),
                           ),
 
                           child: Row(
                             children: [
-
                               const Icon(
                                 Icons.calendar_today,
                                 size: 18,
@@ -219,11 +283,12 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
 
                               Text(
                                 "${selectedDate.day} "
-                                "${_monthName(selectedDate.month)} "
-                                "${selectedDate.year}",
+                                    "${_monthName(selectedDate.month)} "
+                                    "${selectedDate.year}",
 
                                 style: const TextStyle(
                                   fontSize: 14,
+                                  color: Colors.black87,
                                 ),
                               ),
 
@@ -232,7 +297,7 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                               const Icon(
                                 Icons.calendar_month,
                                 size: 18,
-                                color: Colors.grey,
+                                color: primaryBlue,
                               ),
                             ],
                           ),
@@ -241,23 +306,25 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
 
                       const SizedBox(height: 22),
 
-                      // Available Slots
+                      // ================= AVAILABLE SLOTS =================
+
                       const Text(
                         "Available Slots",
+
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
                       ),
 
                       const SizedBox(height: 10),
 
-                      
                       ListView.builder(
                         shrinkWrap: true,
 
                         physics:
-                            const NeverScrollableScrollPhysics(),
+                        const NeverScrollableScrollPhysics(),
 
                         itemCount: slots.length,
 
@@ -269,7 +336,8 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                               bottom: 10,
                             ),
 
-                            padding: const EdgeInsets.symmetric(
+                            padding:
+                            const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 10,
                             ),
@@ -278,44 +346,70 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                               color: Colors.white,
 
                               borderRadius:
-                                  BorderRadius.circular(10),
+                              BorderRadius.circular(10),
 
                               border: Border.all(
-                                color: const Color(0xFFE0E0E0),
+                                color: Colors.blueAccent
+                                    .withValues(alpha: 0.15),
                               ),
+
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(alpha: 0.04),
+
+                                  blurRadius: 5,
+
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
 
                             child: Row(
                               children: [
+                                // ================= TIME =================
 
-                                // Time
                                 Expanded(
                                   child: Text(
                                     slot["time"].toString(),
 
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight:
+                                      FontWeight.w600,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                 ),
 
-                                // Available Switch
+                                // ================= SWITCH =================
+
                                 Switch(
-                                  value: slot["available"] == true,
+                                  value:
+                                  slot["available"] == true,
 
-                                  activeThumbColor: Colors.white,
+                                  activeThumbColor:
+                                  Colors.white,
 
-                                  activeTrackColor: Colors.green,
+                                  activeTrackColor:
+                                  primaryBlue,
+
+                                  inactiveThumbColor:
+                                  Colors.grey,
+
+                                  inactiveTrackColor:
+                                  Colors.grey.shade300,
 
                                   onChanged: (value) {
                                     setState(() {
-                                      slot["available"] = value;
+                                      slot["available"] =
+                                          value;
                                     });
                                   },
                                 ),
 
-                                // Delete
+                                // ================= DELETE =================
+
                                 IconButton(
                                   onPressed: () {
                                     deleteSlot(index);
@@ -333,8 +427,9 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                         },
                       ),
 
-                      
                       const SizedBox(height: 8),
+
+                      // ================= SAVE BUTTON =================
 
                       SizedBox(
                         width: double.infinity,
@@ -344,9 +439,21 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
                           onPressed: () {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(
-                              const SnackBar(
-                                content: Text(
+                              SnackBar(
+                                content: const Text(
                                   "Time slots saved successfully",
+                                ),
+
+                                backgroundColor:
+                                primaryBlue,
+
+                                behavior:
+                                SnackBarBehavior.floating,
+
+                                shape:
+                                RoundedRectangleBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(10),
                                 ),
                               ),
                             );
@@ -358,7 +465,7 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
 
                             shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.circular(10),
+                              BorderRadius.circular(10),
                             ),
                           ),
 
@@ -385,7 +492,8 @@ class _DoctorTimeSlotsState extends State<DoctorTimeSlots> {
     );
   }
 
-  // Month Name
+  // ================= MONTH NAME =================
+
   String _monthName(int month) {
     const months = [
       "January",

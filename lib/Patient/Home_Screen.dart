@@ -37,10 +37,10 @@ class _homePageState extends State<homePage> {
       }
 
       final DocumentSnapshot<Map<String, dynamic>> patientDoc =
-          await FirebaseFirestore.instance
-              .collection('patients')
-              .doc(user.uid)
-              .get();
+      await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(user.uid)
+          .get();
 
       if (patientDoc.exists) {
         final data = patientDoc.data();
@@ -56,6 +56,27 @@ class _homePageState extends State<homePage> {
     } catch (e) {
       debugPrint("Error loading patient name: $e");
     }
+  }
+
+  // ============================================================
+  // OPEN DOCTOR PROFILE
+  // ============================================================
+
+  void openDoctorProfile({
+    required String doctorId,
+    required String doctorName,
+    required String specialization,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DoctorProfile(
+          doctorId: doctorId,
+          doctorName: doctorName,
+          specialization: specialization,
+        ),
+      ),
+    );
   }
 
   @override
@@ -147,7 +168,7 @@ class _homePageState extends State<homePage> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                const Search_screen(),
+                                            const Search_screen(),
                                           ),
                                         );
                                       },
@@ -165,14 +186,13 @@ class _homePageState extends State<homePage> {
                                         fillColor: Colors.white,
 
                                         contentPadding:
-                                            const EdgeInsets.symmetric(
-                                              vertical: 10,
-                                            ),
+                                        const EdgeInsets.symmetric(
+                                          vertical: 10,
+                                        ),
 
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(8),
                                           borderSide: BorderSide.none,
                                         ),
                                       ),
@@ -200,6 +220,7 @@ class _homePageState extends State<homePage> {
                       // =================================================
                       // BOOK APPOINTMENT
                       // =================================================
+
                       Padding(
                         padding: const EdgeInsets.all(18),
 
@@ -223,7 +244,7 @@ class _homePageState extends State<homePage> {
 
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
 
                                     children: [
                                       const Text(
@@ -254,15 +275,15 @@ class _homePageState extends State<homePage> {
                                           backgroundColor: Colors.blueAccent,
                                           foregroundColor: Colors.white,
 
-                                          padding: const EdgeInsets.symmetric(
+                                          padding:
+                                          const EdgeInsets.symmetric(
                                             horizontal: 15,
                                             vertical: 8,
                                           ),
 
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
+                                            borderRadius:
+                                            BorderRadius.circular(8),
                                           ),
                                         ),
 
@@ -288,7 +309,8 @@ class _homePageState extends State<homePage> {
 
                                 fit: BoxFit.contain,
 
-                                errorBuilder: (context, error, stackTrace) {
+                                errorBuilder:
+                                    (context, error, stackTrace) {
                                   return const SizedBox(
                                     height: 125,
                                     width: 90,
@@ -309,8 +331,10 @@ class _homePageState extends State<homePage> {
                       // =================================================
                       // SPECIALITIES TITLE
                       // =================================================
+
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
 
                         child: Row(
                           children: [
@@ -343,13 +367,15 @@ class _homePageState extends State<homePage> {
                       // =================================================
                       // SPECIALITIES
                       // =================================================
+
                       SizedBox(
                         height: 110,
 
                         child: ListView(
                           scrollDirection: Axis.horizontal,
 
-                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          padding:
+                          const EdgeInsets.symmetric(horizontal: 18),
 
                           children: [
                             _specialityCard(
@@ -378,6 +404,7 @@ class _homePageState extends State<homePage> {
                       // =================================================
                       // TOP DOCTORS
                       // =================================================
+
                       const Padding(
                         padding: EdgeInsets.all(15),
 
@@ -396,8 +423,9 @@ class _homePageState extends State<homePage> {
                       ),
 
                       // =================================================
-                      // DOCTOR 1
+                      // DOCTOR 1 - AYESHA KHAN
                       // =================================================
+
                       _doctorCard(
                         image: 'assets/images/Doctor1.png',
                         name: "Dr. Ayesha Khan",
@@ -405,46 +433,73 @@ class _homePageState extends State<homePage> {
                         rating: "4.8",
                         experience: "5 Years Exp.",
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Doctor_profile1(),
-                            ),
+                          openDoctorProfile(
+                            doctorId:
+                            "zOJ2C6NpTgdZ982DI9MIYolqmdK2",
+                            doctorName: "Dr. Ayesha Khan",
+                            specialization: "Cardiologist",
                           );
                         },
                       ),
 
                       // =================================================
-                      // DOCTOR 2
+                      // DOCTOR 2 - AHMER MALIK
                       // =================================================
+
                       _doctorCard(
                         image: 'assets/images/Doctor2.png',
                         name: "Dr. Ahmer Malik",
-                        specialization: "Opthalmologist",
+                        specialization: "Ophthalmologist",
                         rating: "3.8",
                         experience: "8 Years Exp.",
+                        onTap: () {
+                          openDoctorProfile(
+                            doctorId:
+                            "OCyIqBfiA3UYeYQTz9wGrjrFBIt2",
+                            doctorName: "Dr. Ahmer Malik",
+                            specialization: "Ophthalmologist",
+                          );
+                        },
                       ),
 
                       // =================================================
-                      // DOCTOR 3
+                      // DOCTOR 3 - SARA KHAN
                       // =================================================
+
                       _doctorCard(
                         image: 'assets/images/Doctor3.png',
                         name: "Dr. Sara Khan",
                         specialization: "Dermatologist",
                         rating: "4.6",
                         experience: "4 Years Exp.",
+                        onTap: () {
+                          openDoctorProfile(
+                            doctorId:
+                            "ErGXk9aKdjQbVZhMGY6gxMlm2eS2",
+                            doctorName: "Dr. Sara Khan",
+                            specialization: "Dermatologist",
+                          );
+                        },
                       ),
 
                       // =================================================
-                      // DOCTOR 4
+                      // DOCTOR 4 - ALIYAR PASHA
                       // =================================================
+
                       _doctorCard(
                         image: 'assets/images/Doctor4.png',
                         name: "Dr. Aliyar Pasha",
                         specialization: "Neurologist",
                         rating: "4.2",
                         experience: "2 Years Exp.",
+                        onTap: () {
+                          openDoctorProfile(
+                            doctorId:
+                            "aTdxLOoY2Mes3RnwzTWMh3yiT5P2",
+                            doctorName: "Dr. Aliyar Pasha",
+                            specialization: "Neurologist",
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 15),
@@ -456,6 +511,7 @@ class _homePageState extends State<homePage> {
               // =====================================================
               // BOTTOM NAVIGATION
               // =====================================================
+
               SizedBox(
                 height: 65,
 
@@ -473,7 +529,8 @@ class _homePageState extends State<homePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MyAppointments(),
+                          builder: (context) =>
+                          const MyAppointments(),
                         ),
                       );
                     }
@@ -482,7 +539,9 @@ class _homePageState extends State<homePage> {
                     if (index == 2) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const AiChat()),
+                        MaterialPageRoute(
+                          builder: (context) => const AiChat(),
+                        ),
                       );
                     }
 
@@ -542,7 +601,10 @@ class _homePageState extends State<homePage> {
   // SPECIALITY CARD
   // ============================================================
 
-  Widget _specialityCard({required IconData icon, required String title}) {
+  Widget _specialityCard({
+    required IconData icon,
+    required String title,
+  }) {
     return Container(
       width: 100,
 
@@ -557,19 +619,27 @@ class _homePageState extends State<homePage> {
         mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
-          Icon(icon, color: Colors.blueAccent, size: 32),
+          Icon(
+            icon,
+            color: Colors.blueAccent,
+            size: 32,
+          ),
 
           const SizedBox(height: 7),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
+            padding:
+            const EdgeInsets.symmetric(horizontal: 5),
 
             child: Text(
               title,
 
               textAlign: TextAlign.center,
 
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -590,7 +660,8 @@ class _homePageState extends State<homePage> {
     VoidCallback? onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 12),
+      padding:
+      const EdgeInsets.only(left: 20, right: 20, bottom: 12),
 
       child: Container(
         width: double.infinity,
@@ -602,7 +673,9 @@ class _homePageState extends State<homePage> {
 
           borderRadius: BorderRadius.circular(15),
 
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
 
           boxShadow: [
             BoxShadow(
@@ -615,7 +688,10 @@ class _homePageState extends State<homePage> {
 
         child: Row(
           children: [
+            // =====================================================
             // DOCTOR IMAGE
+            // =====================================================
+
             Container(
               height: 70,
               width: 70,
@@ -630,7 +706,8 @@ class _homePageState extends State<homePage> {
 
                 fit: BoxFit.contain,
 
-                errorBuilder: (context, error, stackTrace) {
+                errorBuilder:
+                    (context, error, stackTrace) {
                   return const Icon(
                     Icons.person,
                     color: Colors.blueAccent,
@@ -642,10 +719,14 @@ class _homePageState extends State<homePage> {
 
             const SizedBox(width: 12),
 
+            // =====================================================
             // DOCTOR DETAILS
+            // =====================================================
+
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
 
                 children: [
                   Text(
@@ -672,7 +753,11 @@ class _homePageState extends State<homePage> {
 
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 17),
+                      const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 17,
+                      ),
 
                       const SizedBox(width: 3),
 
@@ -703,7 +788,10 @@ class _homePageState extends State<homePage> {
               ),
             ),
 
+            // =====================================================
             // ARROW
+            // =====================================================
+
             IconButton(
               onPressed: onTap,
 

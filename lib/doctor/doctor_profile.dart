@@ -1,47 +1,48 @@
 import 'package:flutter/material.dart';
 
 class DoctorProfile extends StatelessWidget {
-  const DoctorProfile({super.key});
+  final String doctorId;
+  final String doctorName;
+  final String specialization;
+  final String location;
+  final String about;
+  final String experience;
+  final String qualification;
+  final String hospital;
+  final String email;
+  final String phone;
 
-  static const Color primaryBlue = Color(0xFF1565C0);
+  const DoctorProfile({
+    super.key,
+    required this.doctorId,
+    required this.doctorName,
+    required this.specialization,
+    this.location = "Islamabad, Pakistan",
+    this.about = "",
+    this.experience = "",
+    this.qualification = "",
+    this.hospital = "",
+    this.email = "",
+    this.phone = "",
+  });
 
-  
-
-  static const Map<String, String> doctor = {
-    "name": "Dr. Sarah Khan",
-    "specialization": "Darmatalologist",
-    "location": "Islamabad, Pakistan",
-    "about":
-        "Dr. Sarah Khan is an experienced Darmataologist "
-        "specializing in heart health, diagnosis and patient "
-        "care. She provides professional medical consultation "
-        "and follow-up services.",
-    "experience": "8 Years",
-    "qualification": "MBBS, FCPS",
-    "hospital": "City Medical Center",
-    "email": "sarah@example.com",
-    "phone": "+92 300 1234567",
-  };
+  static const Color primaryBlue = Colors.blueAccent;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF3F8),
+      backgroundColor: Colors.white,
 
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 600,
-            ),
+            constraints: const BoxConstraints(maxWidth: 600),
 
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
 
               child: Scaffold(
-                backgroundColor: const Color(0xFFF7F9FC),
-
-                
+                backgroundColor: Colors.white,
 
                 appBar: AppBar(
                   backgroundColor: primaryBlue,
@@ -50,7 +51,6 @@ class DoctorProfile extends StatelessWidget {
 
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
-
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -65,34 +65,24 @@ class DoctorProfile extends StatelessWidget {
                   ),
                 ),
 
-              
-
                 body: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
 
                   child: Column(
                     children: [
-
-                      
-
+                      // ================= DOCTOR BASIC INFORMATION =================
                       Container(
                         width: double.infinity,
-
                         padding: const EdgeInsets.all(20),
 
                         decoration: BoxDecoration(
                           color: Colors.white,
-
-                          borderRadius:
-                              BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(16),
 
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black
-                                  .withOpacity(0.06),
-
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 8,
-
                               offset: const Offset(0, 3),
                             ),
                           ],
@@ -100,7 +90,6 @@ class DoctorProfile extends StatelessWidget {
 
                         child: Column(
                           children: [
-
                             // Doctor Image
                             Container(
                               width: 100,
@@ -108,9 +97,9 @@ class DoctorProfile extends StatelessWidget {
 
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-
-                                color:
-                                    const Color(0xFFE3F2FD),
+                                color: Colors.blueAccent.withValues(
+                                  alpha: 0.10,
+                                ),
 
                                 border: Border.all(
                                   color: primaryBlue,
@@ -129,12 +118,13 @@ class DoctorProfile extends StatelessWidget {
 
                             // Doctor Name
                             Text(
-                              doctor["name"]!,
+                              doctorName,
+                              textAlign: TextAlign.center,
 
                               style: const TextStyle(
                                 fontSize: 22,
-                                fontWeight:
-                                    FontWeight.bold,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
                               ),
                             ),
 
@@ -142,11 +132,13 @@ class DoctorProfile extends StatelessWidget {
 
                             // Specialization
                             Text(
-                              doctor["specialization"]!,
+                              specialization,
+                              textAlign: TextAlign.center,
 
                               style: const TextStyle(
                                 fontSize: 19,
                                 color: primaryBlue,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
 
@@ -154,8 +146,7 @@ class DoctorProfile extends StatelessWidget {
 
                             // Location
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
 
                               children: [
                                 const Icon(
@@ -167,11 +158,11 @@ class DoctorProfile extends StatelessWidget {
                                 const SizedBox(width: 3),
 
                                 Text(
-                                  doctor["location"]!,
+                                  location,
 
                                   style: const TextStyle(
                                     color: Colors.grey,
-                                    fontSize: 18,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ],
@@ -182,22 +173,17 @@ class DoctorProfile extends StatelessWidget {
 
                       const SizedBox(height: 17),
 
-                      
-
+                      // ================= ABOUT DOCTOR =================
                       profileSection(
                         title: "About Doctor",
 
                         child: Text(
-                          doctor["about"]!,
+                          about.isEmpty
+                              ? "No information available."
+                              : about,
 
                           style: const TextStyle(
-                            color: Color.fromARGB(
-                              255,
-                              20,
-                              19,
-                              19,
-                            ),
-
+                            color: Colors.black87,
                             height: 1.5,
                             fontSize: 15,
                           ),
@@ -206,18 +192,16 @@ class DoctorProfile extends StatelessWidget {
 
                       const SizedBox(height: 16),
 
-                      
-
+                      // ================= PERSONAL INFORMATION =================
                       profileSection(
                         title: "Personal Information",
 
                         child: Column(
                           children: [
-
                             infoRow(
                               Icons.medical_services,
                               "Specialization",
-                              doctor["specialization"]!,
+                              specialization,
                             ),
 
                             const Divider(),
@@ -225,7 +209,7 @@ class DoctorProfile extends StatelessWidget {
                             infoRow(
                               Icons.work,
                               "Experience",
-                              doctor["experience"]!,
+                              experience,
                             ),
 
                             const Divider(),
@@ -233,7 +217,7 @@ class DoctorProfile extends StatelessWidget {
                             infoRow(
                               Icons.school,
                               "Qualification",
-                              doctor["qualification"]!,
+                              qualification,
                             ),
 
                             const Divider(),
@@ -241,7 +225,7 @@ class DoctorProfile extends StatelessWidget {
                             infoRow(
                               Icons.local_hospital,
                               "Hospital",
-                              doctor["hospital"]!,
+                              hospital,
                             ),
                           ],
                         ),
@@ -249,18 +233,16 @@ class DoctorProfile extends StatelessWidget {
 
                       const SizedBox(height: 16),
 
-                      
-
+                      // ================= CONTACT INFORMATION =================
                       profileSection(
                         title: "Contact Information",
 
                         child: Column(
                           children: [
-
                             infoRow(
                               Icons.email,
                               "Email",
-                              doctor["email"]!,
+                              email,
                             ),
 
                             const Divider(),
@@ -268,7 +250,7 @@ class DoctorProfile extends StatelessWidget {
                             infoRow(
                               Icons.phone,
                               "Phone",
-                              doctor["phone"]!,
+                              phone,
                             ),
                           ],
                         ),
@@ -286,8 +268,7 @@ class DoctorProfile extends StatelessWidget {
     );
   }
 
-  
-
+  // ================= PROFILE SECTION =================
   static Widget profileSection({
     required String title,
     required Widget child,
@@ -299,23 +280,19 @@ class DoctorProfile extends StatelessWidget {
 
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius: BorderRadius.circular(14),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 6,
-
             offset: const Offset(0, 3),
           ),
         ],
       ),
 
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           Text(
@@ -336,25 +313,21 @@ class DoctorProfile extends StatelessWidget {
     );
   }
 
-  
-
+  // ================= INFO ROW =================
   static Widget infoRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+      IconData icon,
+      String title,
+      String value,
+      ) {
     return Row(
       children: [
-
         Container(
           width: 38,
           height: 38,
 
           decoration: BoxDecoration(
-            color: const Color(0xFFE3F2FD),
-
-            borderRadius:
-                BorderRadius.circular(10),
+            color: Colors.blueAccent.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(10),
           ),
 
           child: Icon(
@@ -368,22 +341,14 @@ class DoctorProfile extends StatelessWidget {
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-
               Text(
                 title,
 
                 style: const TextStyle(
-                  color: Color.fromARGB(
-                    255,
-                    151,
-                    129,
-                    129,
-                  ),
-
+                  color: Colors.grey,
                   fontSize: 13,
                 ),
               ),
@@ -391,11 +356,12 @@ class DoctorProfile extends StatelessWidget {
               const SizedBox(height: 6),
 
               Text(
-                value,
+                value.isEmpty ? "Not available" : value,
 
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],
