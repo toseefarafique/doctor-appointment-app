@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart';
+
 import 'Chat_Screen.dart';
 import 'Doctor_Profile1.dart';
 import 'My_Appointments.dart';

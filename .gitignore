@@ -44,4 +44,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-lib/Patient/api_config.dart
+lib/Patient/ip_config.dart

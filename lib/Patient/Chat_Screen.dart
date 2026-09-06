@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'api_config.dart';
+import 'ip_config.dart';
 
 
 class ai_chat extends StatefulWidget {
