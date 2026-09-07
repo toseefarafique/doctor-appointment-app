@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'doctor_dashboard.dart';
 
 class DoctorProfile extends StatelessWidget {
   final String doctorId;
@@ -65,7 +66,13 @@ class DoctorProfile extends StatelessWidget {
                     ),
 
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(
+    builder: (context) => const DoctorDashboard(),
+  ),
+  (route) => false,
+);
                     },
                   ),
 

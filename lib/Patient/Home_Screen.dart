@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'Chat_Screen.dart';
+
 import 'Doctor_Profile1.dart';
 import 'My_Appointments.dart';
 import 'Profile.dart';
@@ -547,14 +547,7 @@ class _homePageState extends State<homePage> {
                     }
 
                     // CHAT
-                    if (index == 2) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AiChat(),
-                        ),
-                      );
-                    }
+                    
 
                     // PROFILE
                     if (index == 3) {
@@ -587,11 +580,7 @@ class _homePageState extends State<homePage> {
                       label: "Appointments",
                     ),
 
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.chat_bubble_outline),
-                      activeIcon: Icon(Icons.chat_bubble),
-                      label: "Chat",
-                    ),
+                    
 
                     BottomNavigationBarItem(
                       icon: Icon(Icons.person_2_outlined),

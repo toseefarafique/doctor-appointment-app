@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'doctor_dashboard.dart';
 
 class DoctorSchedule extends StatefulWidget {
   const DoctorSchedule({super.key});
@@ -87,7 +88,13 @@ class _DoctorScheduleState extends State<DoctorSchedule> {
 
                   leading: IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(
+    builder: (context) => const DoctorDashboard(),
+  ),
+  (route) => false,
+);
                     },
 
                     icon: const Icon(

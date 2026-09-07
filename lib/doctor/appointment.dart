@@ -484,12 +484,12 @@ class _DoctorAppointmentsState extends State<DoctorAppointments> {
 
     onPressed: () {
       Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DoctorDashboard(),
-        ),
-        (route) => false,
-      );
+  context,
+  MaterialPageRoute(
+    builder: (context) => const DoctorDashboard(),
+  ),
+  (route) => false,
+);
     },
   ),
 
