@@ -550,7 +550,7 @@ class _homePageState extends State<homePage> {
                     
 
                     // PROFILE
-                    if (index == 3) {
+                    if (index == 2) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(

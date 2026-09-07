@@ -46,10 +46,10 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
       }
 
       final DocumentSnapshot<Map<String, dynamic>> doctorDoc =
-      await FirebaseFirestore.instance
-          .collection('doctors')
-          .doc(user.uid)
-          .get();
+          await FirebaseFirestore.instance
+              .collection('doctors')
+              .doc(user.uid)
+              .get();
 
       if (doctorDoc.exists) {
         final data = doctorDoc.data();
@@ -58,11 +58,9 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
           setState(() {
             doctorId = user.uid;
 
-            doctorName =
-                data['name']?.toString() ?? "Doctor";
+            doctorName = data['name']?.toString() ?? "Doctor";
 
-            specialization =
-                data['specialization']?.toString() ?? "";
+            specialization = data['specialization']?.toString() ?? "";
 
             isLoadingDoctor = false;
           });
@@ -101,15 +99,13 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
 
       isLoadingDoctor
           ? const Center(
-        child: CircularProgressIndicator(
-          color: Colors.blueAccent,
-        ),
-      )
+              child: CircularProgressIndicator(color: Colors.blueAccent),
+            )
           : DoctorProfile(
-        doctorId: doctorId,
-        doctorName: doctorName,
-        specialization: specialization,
-      ),
+              doctorId: doctorId,
+              doctorName: doctorName,
+              specialization: specialization,
+            ),
     ];
   }
 
@@ -130,71 +126,7 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
 
-          child: Scaffold(
-            body: screens[selectedIndex],
-
-            // ======================================================
-            // BOTTOM NAVIGATION
-            // ======================================================
-
-            bottomNavigationBar: SizedBox(
-              height: 65,
-
-              child: BottomNavigationBar(
-                currentIndex: selectedIndex,
-
-                type: BottomNavigationBarType.fixed,
-
-                selectedItemColor: Colors.blueAccent,
-
-                unselectedItemColor: Colors.grey,
-
-                selectedFontSize: 11,
-
-                unselectedFontSize: 10,
-
-                showUnselectedLabels: true,
-
-                onTap: (index) {
-                  // ADMIN
-                  if (index == 4) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AdminDashboard(),
-                      ),
-                    );
-                  } else {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  }
-                },
-
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.dashboard),
-                    label: "Dashboard",
-                  ),
-
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.calendar_today),
-                    label: "Appointments",
-                  ),
-
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.schedule),
-                    label: "Schedule",
-                  ),
-
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: "Profile",
-                  ),
-                ],
-              ),
-            ),
-          ),
+          child: Scaffold(body: screens[selectedIndex]),
         ),
       ),
     );
