@@ -440,7 +440,7 @@ build/app/outputs/flutter-apk/app-release.apk
 
 | Team Member         | Module         | Main Contributions                                                                                         |
 | ------------------- | -------------- | ---------------------------------------------------------------------------------------------------------- |
-| **[ Sawera]** | Patient Module | Login/Register, Patient Home, Doctor Profiles, Appointment Booking, Appointments, Medical Profile, Reviews |
+| **[ Swaira]** | Patient Module | Login/Register, Patient Home, Doctor Profiles, Appointment Booking, Appointments, Medical Profile, Reviews |
 | **[ Toseefa Rafique]** | Doctor Module  | Doctor Dashboard, Doctor Profile, Appointments, Appointment Details, Schedule, Time Slots, Patient Details |
 | **[Samara Minahil]**     | Admin Module   | Admin Dashboard, Manage Patients, Manage Doctors, Manage Appointments, Specializations                     |
 
